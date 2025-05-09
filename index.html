@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>DRIP Returns Calculator</title>
+  <link rel="stylesheet" href="styles-front.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <section id="drip-calculator">
+    <h2>DRIP Returns Calculator</h2>
+
+    <label for="initialInvestment">Initial Investment ($)</label>
+    <input id="initialInvestment" type="number" min="0" step="100" value="50000"/>
+
+    <label for="annualRate">Annual Dividend Yield (%)</label>
+    <input id="annualRate" type="number" min="0" step="0.01" value="9.75"/>
+
+    <label for="years">Time Horizon (years)</label>
+    <input id="years" type="number" min="1" step="1" value="20"/>
+
+    <label for="contributionAmount">Additional Contribution Amount ($)</label>
+    <input id="contributionAmount" type="number" min="0" step="100" value="0"/>
+
+    <label for="contributionFrequency">Contribution Frequency (months)</label>
+    <input id="contributionFrequency" type="number" min="1" step="1" value="12"/>
+
+    <button id="calculateDrip">Calculate</button>
+
+    <div id="dripResults" aria-live="polite"></div>
+    <canvas id="dripChart"></canvas>
+    <div id="dripTableContainer"></div>
+    <div id="dripActions">
+      <button id="downloadCsv">Export CSV</button>
+      <button id="downloadChart">Download Chart</button>
+      <button id="emailData">Email Data</button>
+    </div>
+  </section>
+
+  <script>
+    let dripChart, dripData;
+
+    document.getElementById('calculateDrip').addEventListener('click', () => {
+      const P     = parseFloat(document.getElementById('initialInvestment').value);
+      const r     = parseFloat(document.getElementById('annualRate').value) / 100;
+      const yrs   = parseInt(document.getElementById('years').value, 10);
+      const C     = parseFloat(document.getElementById('contributionAmount').value);
+      const freq  = parseInt(document.getElementById('contributionFrequency').value, 10);
+      if ([P, r, yrs, C, freq].some(v => isNaN(v) || v < 0) || yrs === 0 || freq === 0) {
+        return alert('Enter valid non-negative numbers and years/frequency ≥1');
+      }
+
+      const months           = yrs * 12;
+      const monthlyRate      = r / 12;
+      let principalDrip      = P;
+      let principalNonDrip   = P;
+      let accNonDripInterest = 0;
+      let contribTotal       = 0;
+
+      // for Excel‐formula “average annual DRIP return”
+      let cumulativeDividendGain = 0;
+      const avgAnnualDripArr     = [];
+
+      // other arrays
+      const labels               = [];
+      const regReturnArr         = [];
+      const dripReturnArr        = [];
+      const cumulativeDripPctArr = [];
+      const contribThisMonthArr  = [];
+      const cashflows            = [];
+      cashflows.push(-P);
+
+      for (let m = 1; m <= months; m++) {
+        // DRIP reinvest
+        const iDrip = principalDrip * monthlyRate;
+        principalDrip += iDrip;
+
+        // Excel formula snippet:
+        cumulativeDividendGain += iDrip;
+        const yearsSoFar        = m / 12;
+        avgAnnualDripArr.push((cumulativeDividendGain / yearsSoFar) / P);
+
+        // non‐DRIP interest
+        const iNon = principalNonDrip * monthlyRate;
+        accNonDripInterest += iNon;
+
+        // contributions
+        let added = 0;
+        if (C > 0 && m % freq === 0) {
+          principalDrip    += C;
+          principalNonDrip += C;
+          contribTotal     += C;
+          added = C;
+        }
+        contribThisMonthArr.push(added);
+        cashflows.push(-added);
+
+        regReturnArr.push(iNon);
+        dripReturnArr.push(iDrip);
+
+        const investedSoFar = P + contribTotal;
+        const dripVal       = principalDrip;
+        const nonVal        = principalNonDrip + accNonDripInterest;
+
+        cumulativeDripPctArr.push(dripVal / investedSoFar - 1);
+
+        labels.push(m);
+      }
+
+      // finalize cashflow
+      cashflows[cashflows.length - 1] += principalDrip;
+
+      // IRR function & annualized IRR
+      function irr(cfs, guess = 0.01) {
+        let rate = guess;
+        for (let i = 0; i < 50; i++) {
+          let f = 0, fprime = 0;
+          cfs.forEach((cf, k) => {
+            f     += cf / Math.pow(1 + rate, k);
+            fprime += -k * cf / Math.pow(1 + rate, k + 1);
+          });
+          const newRate = rate - f / fprime;
+          if (Math.abs(newRate - rate) < 1e-9) break;
+          rate = newRate;
+        }
+        return rate;
+      }
+      const monthlyIRR     = irr(cashflows);
+      const annualizedDrip = Math.pow(1 + monthlyIRR, 12) - 1;
+
+      dripData = {
+        labels,
+        regReturnArr,
+        cumulativeDripPctArr,
+        dripReturnArr,
+        contribThisMonthArr,
+        avgAnnualDripArr,
+        annualizedDrip
+      };
+
+      // ─── Results summary ───
+      const fmt = n => n.toLocaleString(undefined, { minimumFractionDigits:2, maximumFractionDigits:2 });
+
+      let summaryHtml = `
+        <div class="result-row">
+        </div>`;
+
+      document.getElementById('dripResults').innerHTML = summaryHtml;
+      // ────────────────────────
+
+      // ─── Detail table with “Cumulative Return (DRIP)” from avgAnnualDripArr ───
+      const rows = labels.map((m,i) => {
+        let principalCell = '<td></td>';
+        if (i === 0) {
+          principalCell = `<td>$${fmt(P)}</td>`;
+        } else if (contribThisMonthArr[i] > 0) {
+          principalCell = `<td>$${fmt(contribThisMonthArr[i])}</td>`;
+        }
+        return `
+          <tr>
+            <td>${m}</td>
+            ${principalCell}
+            <td>$${fmt(regReturnArr[i])}</td>
+            <td>$${fmt(dripReturnArr[i])}</td>
+            <td>${(avgAnnualDripArr[i]*100).toFixed(2)}%</td>
+          </tr>`;
+      }).join('');
+
+      document.getElementById('dripTableContainer').innerHTML = `
+        <table class="drip-detail-table">
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th>Principal Invested</th>
+              <th>Regular Return</th>
+              <th>DRIP Return</th>
+              <th>Cumulative Return (DRIP)</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+      // ───────────────────────────────────────────────────────────────────────────
+
+      // draw chart
+      if (dripChart) dripChart.destroy();
+      Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+      Chart.defaults.color      = getComputedStyle(document.body).color;
+      const ctx = document.getElementById('dripChart').getContext('2d');
+      dripChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            { label: 'With DRIP',    data: dripReturnArr, borderColor: '#006644', tension: 0.3, pointRadius: 2 },
+            { label: 'Without DRIP', data: regReturnArr,   borderColor: '#004C84', tension: 0.3, pointRadius: 2 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          aspectRatio: 2,
+          scales: {
+            x: { title: { display: true, text: 'Month' } },
+            y: { title: { display: true, text: 'Return ($)' } }
+          },
+          plugins: { legend: { position: 'top' } }
+        }
+      });
+    });
+
+    // CSV export
+    document.getElementById('downloadCsv').addEventListener('click', () => {
+      if (!dripData) return alert('Run calc first');
+      const { labels, regReturnArr, dripReturnArr, contribThisMonthArr, avgAnnualDripArr } = dripData;
+      let csv = 'Month,Contribution,Regular Return,DRIP Return,Cumulative DRIP %\n';
+      labels.forEach((m,i) => {
+        csv += [
+          m,
+          contribThisMonthArr[i].toFixed(2),
+          regReturnArr[i].toFixed(2),
+          dripReturnArr[i].toFixed(2),
+          (avgAnnualDripArr[i]*100).toFixed(2)+'%'
+        ].join(',') + '\n';
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'drip_returns.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Chart export
+    document.getElementById('downloadChart').addEventListener('click', () => {
+      if (!dripChart) return alert('Run calc first');
+      const url = dripChart.toBase64Image();
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'drip_chart.png';
+      a.click();
+    });
+
+    // Email data
+    document.getElementById('emailData').addEventListener('click', () => {
+      if (!dripData) return alert('Run calc first');
+      const { labels, regReturnArr, dripReturnArr, contribThisMonthArr, avgAnnualDripArr } = dripData;
+      let body = 'Month,Contribution,Regular Return,DRIP Return,Cumulative DRIP %\n';
+      labels.forEach((m,i) => {
+        body += [
+          m,
+          contribThisMonthArr[i].toFixed(2),
+          regReturnArr[i].toFixed(2),
+          dripReturnArr[i].toFixed(2),
+          (avgAnnualDripArr[i]*100).toFixed(2)+'%'
+        ].join(',') + '\n';
+      });
+      window.location.href = `mailto:?subject=${encodeURIComponent('DRIP Returns Data')}&body=${encodeURIComponent(body)}`;
+    });
+
+    // auto-run on load
+    document.addEventListener('DOMContentLoaded', () => document.getElementById('calculateDrip').click());
+  </script>
+</body>
+</html>

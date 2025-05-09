@@ -1,0 +1,85 @@
+body {
+  font-family: Montserrat
+}
+
+
+/* DRIP Calculator Container */
+#drip-calculator {
+  max-width: 480px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border: 1px solid #E5E5E5;      /* match the light grey borders on investors page */
+  background: #FFFFFF;            /* solid white, like the page cards */
+  font-family: Montserrat, inherit;           /* inherit the site’s body font */
+  color: inherit;                 /* inherit the site’s body text color */
+}
+
+/* Header */
+#drip-calculator h2 {
+  margin: 0 0 1rem;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: inherit;                 /* match the site’s heading color */
+}
+
+/* Labels & Inputs */
+#drip-calculator label {
+  display: block;
+  margin: 0.75rem 0 0.25rem;
+  font-weight: 500;
+}
+#drip-calculator input {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #CCCCCC;     /* a touch darker than container border */
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-family: Montserrat;
+  color: inherit;
+}
+
+/* Button (use the site’s primary green) */
+#drip-calculator button {
+  margin-top: 1rem;
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  background-color: #006644;     /* Morrison’s “Book a Consultation” green */
+  color: #FFFFFF;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color .2s ease-in-out;
+  font-family: inherit;
+}
+#drip-calculator button:hover {
+  background-color: #005633;
+}
+
+/* Results rows */
+#dripResults {
+  margin-top: 1.5rem;
+  line-height: 1.5;
+  font-family: inherit;
+}
+#dripResults .result-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #EEE;
+}
+#dripResults .result-row:last-child {
+  border-bottom: none;
+}
+
+/* Chart canvas */
+#dripChart {
+  width: 100%;
+  max-height: 300px;             /* cap its height */
+  margin-top: 1.5rem;
+  display: block;
+  background: #FFFFFF;
+  border: 1px solid #E5E5E5;
+  border-radius: 4px;
+}
