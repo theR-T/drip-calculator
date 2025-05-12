@@ -69,8 +69,12 @@ body {
   padding: 0.25rem 0;
   border-bottom: 1px solid #EEE;
 }
-#dripResults .result-row:last-child {
-  border-bottom: none;
+.drip-detail-table tbody tr:nth-child(odd) {
+  background-color: #e4e4e4;   /* every other line grey */
+}
+
+.drip-detail-table tbody tr:nth-child(even) {
+  background-color: #fafafa;   /* the “light green” you wanted */
 }
 
 /* Chart canvas */
