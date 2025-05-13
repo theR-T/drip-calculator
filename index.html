@@ -45,6 +45,39 @@
   </section>
 
   <script>
+    // 1) pre-load your background image
+    const bgImage = new Image();
+    bgImage.src   = 'assets/MorrisonM.png';   // adjust path as needed
+
+    // 2) define a tiny plugin to paint it before the chart draws
+    const bgPlugin = {
+      id: 'bgImage',
+      beforeDraw: chart => {
+        const { ctx, chartArea, width: cw, height: ch } = chart;
+        if (!bgImage.complete) return;
+
+        // how big you want it relative to chart area
+        const SCALE = 0.5;
+        const imgRatio = bgImage.width / bgImage.height;
+
+        // scale image to SCALE× chartArea width
+        const dw = chartArea.width * SCALE;
+        const dh = dw / imgRatio;
+
+        // center it inside the chartArea
+        const dx = chartArea.left + (chartArea.width - dw) / 2;
+        const dy = chartArea.top  + (chartArea.height - dh) / 2;
+
+        ctx.save();
+        ctx.globalAlpha = 0.;
+        ctx.drawImage(bgImage, dx, dy, dw, dh);
+        ctx.restore();
+      }
+    };
+
+    // 3) register it globally
+    Chart.register(bgPlugin);
+
     let dripChart, dripData;
 
     document.getElementById('calculateDrip').addEventListener('click', () => {
@@ -183,27 +216,72 @@
           <tbody>${rows}</tbody>
         </table>`;
 
+      // Build yearly arrays (every 12 months)
+      const yearLabels     = [];
+      const yearlyDrip     = [];
+      const yearlyNonDrip  = [];
+      labels.forEach((m, i) => {
+        if (m % 12 === 0) {
+          yearLabels.push(m / 12);
+          yearlyDrip.push(totalDripReturnArr[i]);
+          yearlyNonDrip.push(totalNonDripReturnArr[i]);
+        }
+      });
+
       // Draw chart
       if (dripChart) dripChart.destroy();
       Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
       Chart.defaults.color       = getComputedStyle(document.body).color;
       const ctx = document.getElementById('dripChart').getContext('2d');
+      Chart.defaults.devicePixelRatio = 2;
       dripChart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels,
+          labels: yearLabels,
           datasets: [
-            { label: 'With DRIP',    data: totalDripReturnArr,    borderColor:'#006644', tension:0.3, pointRadius:2 },
-            { label: 'Without DRIP', data: totalNonDripReturnArr, borderColor:'#004C84', tension:0.3, pointRadius:2 }
+            {
+              label: 'With DRIP',
+              data:  yearlyDrip,
+              borderColor:          '#006644',
+              pointBackgroundColor: '#006644',
+              pointBorderColor:     '#ffffff',  // white ring around the point
+              pointRadius:          4,
+              tension:              0.3,
+              fill:                 false
+            },
+            {
+              label: 'Without DRIP',
+              data:  yearlyNonDrip,
+              borderColor:          '#004C84',
+              pointBackgroundColor: '#004C84',
+              pointBorderColor:     '#ffffff',
+              pointRadius:          4,
+              tension:              0.3,
+              fill:                 false
+            }
           ]
         },
         options: {
           responsive:true, maintainAspectRatio:true, aspectRatio:2,
-          scales:{
-            x:{ title:{display:true,text:'Month'} },
-            y:{ title:{display:true,text:'Cumulative Return ($)'} }
+          scales: {
+            x: {
+              type: 'category',       // treat labels array as categories
+              title: {
+                display: true,
+                text: 'Year'
+              },
+              ticks: {
+                callback: tickVal => `Year ${tickVal}`  // prepend Year ”
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Cumulative Return ($)'
+              }
+            }
           },
-          plugins:{legend:{position:'top'}}
+          plugins:{legend:{position:'top', labels: {usePointStyle: true,  pointStyle: 'circle', boxWidth: 8, boxHeight: 8, padding: 16}}},
         }
       });
     });
@@ -229,11 +307,47 @@
     });
 
     // Chart export
-    document.getElementById('downloadChart').addEventListener('click',()=>{
-      if(!dripChart) return alert('Run calc first');
-      const url = dripChart.toBase64Image();
-      const a = document.createElement('a'); a.href=url; a.download='drip_chart.png'; a.click();
-    });
+    document.getElementById('downloadChart').addEventListener('click', () => {
+      if (!dripChart) return alert('Run calc first');
+      const PAD   = 20;   // CSS-pixel padding around chart
+      const SCALE = 2;    // 2× pixel density
+
+      // 1) grab the on-screen chart <canvas> and its logical size
+      const srcCanvas = dripChart.canvas;
+      const cssW      = srcCanvas.width;
+      const cssH      = srcCanvas.height;
+
+      // 2) build an off-screen canvas
+      const exportCanvas = document.createElement('canvas');
+      // a) logical pixel size = (chart + 2*PAD) × SCALE
+      exportCanvas.width  = (cssW + PAD * 2) * SCALE;
+      exportCanvas.height = (cssH + PAD * 2) * SCALE;
+      // b) keep its CSS size equal to the on-screen chart + padding
+      exportCanvas.style.width  = `${cssW + PAD * 2}px`;
+      exportCanvas.style.height = `${cssH + PAD * 2}px`;
+
+      const ctx = exportCanvas.getContext('2d');
+      // 3) scale drawing operations so that your chart is crisp
+      ctx.scale(SCALE, SCALE);
+
+      // 4) fill the entire off-screen canvas white (covers both chart area + padding)
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, cssW + PAD * 2, cssH + PAD * 2);
+
+      // 5) draw your on-screen chart into the middle
+      //    note: drawImage uses the CSS-pixel dimensions here
+      ctx.drawImage(srcCanvas, PAD, PAD, cssW, cssH);
+
+      // 6) export that off-screen canvas
+      exportCanvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a   = document.createElement('a');
+        a.href    = url;
+        a.download = 'drip_chart@2x.png';
+        a.click();
+        URL.revokeObjectURL(url);
+      }, 'image/png');
+    })
 
     // Email data
     document.getElementById('emailData').addEventListener('click',()=>{
