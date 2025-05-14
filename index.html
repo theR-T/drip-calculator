@@ -18,16 +18,16 @@
     <h2>DRIP Returns Calculator</h2>
 
     <label for="initialInvestment">Initial Investment ($)</label>
-    <input id="initialInvestment" type="number" min="0" step="100" value="50000"/>
+    <input id="initialInvestment" type="number" min="0" step="10000" value="50000"/>
 
     <label for="annualRate">Annual Dividend Yield (%)</label>
-    <input id="annualRate" type="number" min="0" step="0.01" value="9.75"/>
+    <input id="annualRate" type="number" min="0" step="0.25" value="9.75"/>
 
     <label for="years">Time Horizon (years)</label>
     <input id="years" type="number" min="1" step="1" value="20"/>
 
     <label for="contributionAmount">Additional Contribution Amount ($)</label>
-    <input id="contributionAmount" type="number" min="0" step="100" value="0"/>
+    <input id="contributionAmount" type="number" min="0" step="1000" value="0"/>
 
     <label for="contributionFrequency">Contribution Frequency (months)</label>
     <input id="contributionFrequency" type="number" min="1" step="1" value="12"/>
@@ -189,16 +189,33 @@
         annualizedDrip
       };
 
-      // Results summary
+      
+      // grab the final cumulative numbers
+      const finalIndex     = dripData.totalNonDripReturnArr.length - 1;
+      const finalNonDrip   = dripData.totalNonDripReturnArr[finalIndex];
+      const finalDripTotal = dripData.totalDripReturnArr[finalIndex];
+
+      // formatter
       const fmt = n => n.toLocaleString(undefined, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       });
+
+      // 3) inject 3-row summary
       document.getElementById('dripResults').innerHTML = `
         <div class="result-row">
           <strong>Annualized DRIP Return:</strong>
-          <span>${(annualizedDrip * 100).toFixed(2)}%</span>
-        </div>`;
+          <span>${(dripData.annualizedDrip * 100).toFixed(2)}%</span>
+        </div>
+        <div class="result-row">
+          <strong>Total Regular Return:</strong>
+          <span>$${fmt(finalNonDrip)}</span>
+        </div>
+        <div class="result-row">
+          <strong>Total DRIP Return:</strong>
+          <span>$${fmt(finalDripTotal)}</span>
+        </div>
+      `;
 
       // 1) Build the monthly-detail table HTML
       const monthlyRows = labels.map((m, i) => {
@@ -220,15 +237,15 @@
       }).join('');
 
       monthlyTableHtml = `
-        <table class="drip-detail-table">
+        <table class="drip-detail-table monthly-table">
           <thead>
             <tr>
               <th>Month</th>
-              <th>Principal Invested</th>
-              <th>Regular Return</th>
-              <th>DRIP Return</th>
-              <th>Total non-DRIP Return</th>
-              <th>Total DRIP Return</th>
+              <th>Principal<br/>Invested</th>
+              <th>Regular<br/>Return</th>
+              <th>DRIP<br/>Return</th>
+              <th>Total Regular<br/>Return</th>
+              <th>Total DRIP<br/>Return</th>
             </tr>
           </thead>
           <tbody>
@@ -246,7 +263,7 @@
         const idx = y * 12 - 1;
         return `
           <tr>
-            <td>Year ${y}</td>
+            <td>${y}</td>
             <td>$${fmt(totalNonDripReturnArr[idx])}</td>
             <td>$${fmt(totalDripReturnArr[idx])}</td>
           </tr>`;
@@ -257,8 +274,8 @@
           <thead>
             <tr>
               <th>Year</th>
-              <th>Total non-DRIP Return</th>
-              <th>Total DRIP Return</th>
+              <th>Total Regular<br/>Return</th>
+              <th>Total DRIP<br/>Return</th>
             </tr>
           </thead>
           <tbody>
@@ -357,8 +374,9 @@
       showYear ? yearlyTableHtml : monthlyTableHtml;
     // ② update the button label
     document.getElementById('toggleView').textContent =
-      showYear ? 'Show Details by Month' : 'Show Summary by Year';
+      showYear ? 'Show Details by Month' : 'Show Details by Year';
     });
+
 
     // CSV export
     document.getElementById('downloadCsv').addEventListener('click',()=>{

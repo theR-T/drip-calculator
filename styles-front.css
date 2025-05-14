@@ -9,6 +9,7 @@ body {
   margin: 2rem auto;
   padding: 1.5rem;
   border: 1px solid #E5E5E5;      /* match the light grey borders on investors page */
+  border-radius: 5px;
   background: #FFFFFF;            /* solid white, like the page cards */
   font-family: Montserrat, inherit;           /* inherit the site’s body font */
   color: inherit;                 /* inherit the site’s body text color */
@@ -62,7 +63,7 @@ body {
   /* full width of its parent, you can also max-width if you like */
   width: 100%;
   /* increase/decrease height as you wish */
-  height: 400px;
+  height: 380px;
 }
 
 /* Results rows */
@@ -90,6 +91,7 @@ body {
   width: 100%;
   height: 100%;             /* cap its height */
   margin-top: 1.5rem;
+  margin-bottom: -1.5rem;
   display: block;
   background: #FFFFFF;
   border: 1px solid #E5E5E5;
@@ -113,6 +115,10 @@ body {
 
 
 .drip-table-wrapper {
+  display: grid;                   /* so that justify-items / justify-self actually work */
+  container-type: inline-size;     /* turn it into a container you can query */
+  container-name: table-wrapper;
+  justify-items: center;           /* default: center the table */
   overflow-x: auto;
   /* enable smooth touch-scroll on iOS */
   -webkit-overflow-scrolling: touch;
@@ -128,6 +134,13 @@ body {
   display: none;
 }
 
+
+@container drip-table-wrapper (max-width: 480px) {
+  .drip-detail-table {
+    justify-self: start;   /* align the table left when ≤480px to fit huge numbers if needed */
+  }
+}
+
 /* target the first column (“Month”) and give it a narrow width */
 .drip-detail-table th:first-child,
 .drip-detail-table td:first-child {
@@ -137,6 +150,13 @@ body {
   padding: 0;     /* optional padding so it doesn’t hug the edge */
 }
 .drip-detail-table td {
-  width: auto;
   padding: 0 .25rem;
+  font-size: 12px;
+  width: 0;
+}
+.drip-detail-table th,
+.drip-detail-table td {
+  white-space: nowrap;
+  font-size: 12px;
+  min-width: 50px;
 }
