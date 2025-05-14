@@ -57,13 +57,21 @@ body {
   background-color: #005633;
 }
 
+.chart-wrapper {
+  position: relative;
+  /* full width of its parent, you can also max-width if you like */
+  width: 100%;
+  /* increase/decrease height as you wish */
+  height: 400px;
+}
+
 /* Results rows */
 #dripResults {
   margin-top: 1.5rem;
   line-height: 1.5;
   font-family: inherit;
 }
-#dripResults .result-row {
+#dripResults .result-row {  
   display: flex;
   justify-content: space-between;
   padding: 0.25rem 0;
@@ -80,10 +88,55 @@ body {
 /* Chart canvas */
 #dripChart {
   width: 100%;
-  max-height: 300px;             /* cap its height */
+  height: 100%;             /* cap its height */
   margin-top: 1.5rem;
   display: block;
   background: #FFFFFF;
   border: 1px solid #E5E5E5;
   border-radius: 4px;
+}
+
+@media only screen and (max-width: 500px) {
+    #drip-calculator {
+      max-width: 100%;
+      margin: 1rem auto;
+      padding: 1rem;
+      border: 1px solid #E5E5E5;      /* match the light grey borders on investors page */
+      background: #FFFFFF;            /* solid white, like the page cards */
+      font-family: Montserrat, inherit;           /* inherit the site’s body font */
+      color: inherit;                 /* inherit the site’s body text color */
+  }
+  .chart-wrapper {
+    height: 300px;
+  }
+}
+
+
+.drip-table-wrapper {
+  overflow-x: auto;
+  /* enable smooth touch-scroll on iOS */
+  -webkit-overflow-scrolling: touch;
+  
+  /* hide scrollbar in Firefox */
+  scrollbar-width: none;
+  /* hide scrollbar in IE10+ */
+  -ms-overflow-style: none;
+}
+
+/* hide scrollbar in WebKit browsers */
+.drip-table-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+/* target the first column (“Month”) and give it a narrow width */
+.drip-detail-table th:first-child,
+.drip-detail-table td:first-child {
+  width: 0;              /* about 4 characters wide; tweak as needed */
+  /* keep this one left-aligned so your “Month” headers still read naturally */
+  text-align: center;
+  padding: 0;     /* optional padding so it doesn’t hug the edge */
+}
+.drip-detail-table td {
+  width: auto;
+  padding: 0 .25rem;
 }

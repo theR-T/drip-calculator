@@ -35,8 +35,15 @@
     <button id="calculateDrip">Calculate</button>
 
     <div id="dripResults" aria-live="polite"></div>
-    <canvas id="dripChart"></canvas>
-    <div id="dripTableContainer"></div>
+    <div class="chart-wrapper">
+      <canvas id="dripChart"></canvas>
+    </div>
+    <div class="table-controls">
+      <button id="toggleView">Show Details by Month</button>
+    </div>
+    <div class="drip-table-wrapper">
+      <div id="dripTableContainer"></div>
+    </div>
     <div id="dripActions">
       <button id="downloadCsv">Export CSV</button>
       <button id="downloadChart">Download Chart</button>
@@ -45,6 +52,10 @@
   </section>
 
   <script>
+    let showYear = true;           // toggle state
+    let monthlyTableHtml = "";     // populated after calculation
+    let yearlyTableHtml  = "";     // populated after calculation
+
     // 1) pre-load your background image
     const bgImage = new Image();
     bgImage.src   = 'assets/MorrisonM.png';   // adjust path as needed
@@ -69,7 +80,7 @@
         const dy = chartArea.top  + (chartArea.height - dh) / 2;
 
         ctx.save();
-        ctx.globalAlpha = 0.;
+        ctx.globalAlpha = 0.05;
         ctx.drawImage(bgImage, dx, dy, dw, dh);
         ctx.restore();
       }
@@ -104,6 +115,7 @@
       const avgAnnualDripArr        = [];
       const totalDripReturnArr      = [];
       const totalNonDripReturnArr   = [];
+
       const labels                  = [];
       const regReturnArr            = [];
       const dripReturnArr           = [];
@@ -178,18 +190,24 @@
       };
 
       // Results summary
-      const fmt = n=>n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+      const fmt = n => n.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
       document.getElementById('dripResults').innerHTML = `
         <div class="result-row">
           <strong>Annualized DRIP Return:</strong>
-          <span>${(annualizedDrip*100).toFixed(2)}%</span>
+          <span>${(annualizedDrip * 100).toFixed(2)}%</span>
         </div>`;
 
-      // Detail table
-      const rows = labels.map((m,i) => {
+      // 1) Build the monthly-detail table HTML
+      const monthlyRows = labels.map((m, i) => {
         let principalCell = '<td></td>';
-        if (i===0) principalCell = `<td>$${fmt(P)}</td>`;
-        else if (contribThisMonthArr[i]>0) principalCell = `<td>$${fmt(contribThisMonthArr[i])}</td>`;
+        if (i === 0) {
+          principalCell = `<td>$${fmt(P)}</td>`;
+        } else if (contribThisMonthArr[i] > 0) {
+          principalCell = `<td>$${fmt(contribThisMonthArr[i])}</td>`;
+        }
         return `
           <tr>
             <td>${m}</td>
@@ -201,7 +219,7 @@
           </tr>`;
       }).join('');
 
-      document.getElementById('dripTableContainer').innerHTML = `
+      monthlyTableHtml = `
         <table class="drip-detail-table">
           <thead>
             <tr>
@@ -213,20 +231,54 @@
               <th>Total DRIP Return</th>
             </tr>
           </thead>
-          <tbody>${rows}</tbody>
+          <tbody>
+            ${monthlyRows}
+          </tbody>
         </table>`;
 
-      // Build yearly arrays (every 12 months)
-      const yearLabels     = [];
-      const yearlyDrip     = [];
-      const yearlyNonDrip  = [];
-      labels.forEach((m, i) => {
-        if (m % 12 === 0) {
-          yearLabels.push(m / 12);
-          yearlyDrip.push(totalDripReturnArr[i]);
-          yearlyNonDrip.push(totalNonDripReturnArr[i]);
-        }
+      // 2) Compute the yearLabels first, then build the yearly-summary HTML
+      const yearLabels = [];
+      labels.forEach((m) => {
+        if (m % 12 === 0) yearLabels.push(m / 12);
       });
+
+      const yearlyRows = yearLabels.map(y => {
+        const idx = y * 12 - 1;
+        return `
+          <tr>
+            <td>Year ${y}</td>
+            <td>$${fmt(totalNonDripReturnArr[idx])}</td>
+            <td>$${fmt(totalDripReturnArr[idx])}</td>
+          </tr>`;
+      }).join('');
+
+      yearlyTableHtml = `
+        <table class="drip-detail-table">
+          <thead>
+            <tr>
+              <th>Year</th>
+              <th>Total non-DRIP Return</th>
+              <th>Total DRIP Return</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${yearlyRows}
+          </tbody>
+        </table>`;
+
+      // 3) Inject the appropriate table based on the toggle state
+      document.getElementById('dripTableContainer').innerHTML =
+        showYear ? yearlyTableHtml : monthlyTableHtml;
+
+      // Build the datasets for the chart
+      const yearlyDrip    = [];
+      const yearlyNonDrip = [];
+      yearLabels.forEach(y => {
+        const idx = y * 12 - 1;
+        yearlyDrip.push(totalDripReturnArr[idx]);
+        yearlyNonDrip.push(totalNonDripReturnArr[idx]);
+      });
+
 
       // Draw chart
       if (dripChart) dripChart.destroy();
@@ -237,7 +289,7 @@
       dripChart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: yearLabels,
+          labels: yearLabels.map(y => `Year ${y}`),
           datasets: [
             {
               label: 'With DRIP',
@@ -262,28 +314,50 @@
           ]
         },
         options: {
-          responsive:true, maintainAspectRatio:true, aspectRatio:2,
+          responsive:true, maintainAspectRatio:false,
           scales: {
             x: {
               type: 'category',       // treat labels array as categories
               title: {
                 display: true,
-                text: 'Year'
+                text: 'Number of years invested'
               },
-              ticks: {
-                callback: tickVal => `Year ${tickVal}`  // prepend Year ”
-              }
             },
             y: {
               title: {
                 display: true,
-                text: 'Cumulative Return ($)'
+                text: 'Total Return ($)'
               }
             }
           },
-          plugins:{legend:{position:'top', labels: {usePointStyle: true,  pointStyle: 'circle', boxWidth: 8, boxHeight: 8, padding: 16}}},
+          plugins:{
+            title: {
+              display: true,
+              text: 'Total DRIP vs Non-DRIP Returns Over Time',
+              padding: {
+                top: 10
+              },
+              font: {
+                size: 16,
+                weight: '500'
+              }
+            },
+            legend:{
+              position:'top', 
+              labels: {usePointStyle: true,  pointStyle: 'circle', boxWidth: 8, boxHeight: 8, padding: 16}}
+          },
         }
       });
+    })
+
+    // 2) Toggle button
+    document.getElementById('toggleView').addEventListener('click', () => {
+      showYear = !showYear;
+    document.getElementById('dripTableContainer').innerHTML =
+      showYear ? yearlyTableHtml : monthlyTableHtml;
+    // ② update the button label
+    document.getElementById('toggleView').textContent =
+      showYear ? 'Show Details by Month' : 'Show Summary by Year';
     });
 
     // CSV export
@@ -347,7 +421,7 @@
         a.click();
         URL.revokeObjectURL(url);
       }, 'image/png');
-    })
+    });
 
     // Email data
     document.getElementById('emailData').addEventListener('click',()=>{
