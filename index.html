@@ -105,6 +105,10 @@
       if ([P, r, yrs, C, freq].some(v => isNaN(v) || v < 0) || yrs===0||freq===0) {
         return alert('Enter valid non-negative numbers and years/frequency ≥1');
       }
+      function cell(v) {
+        // if v is null, undefined, NaN, zero, or an empty string, show “-”
+        return v ? `$${fmtRounded(v)}` : '–';
+      }
 
       const months           = yrs * 12;
       const monthlyRate      = r / 12;
@@ -235,20 +239,19 @@
 
       // 1) Build the monthly-detail table HTML
       const monthlyRows = labels.map((m, i) => {
-        let principalCell = '<td></td>';
-        if (i === 0) {
-          principalCell = `<td>$${fmtRounded(P)}</td>`;
-        } else if (contribThisMonthArr[i] > 0) {
-          principalCell = `<td>$${fmtRounded(contribThisMonthArr[i])}</td>`;
-        }
+        const invested = (i === 0)
+          ? P
+          : contribThisMonthArr[i];
+
+        const principalCell = `<td>${ cell(invested) }</td>`;
         return `
           <tr>
             <td>${m}</td>
             ${principalCell}
-            <td>$${fmtRounded(regReturnArr[i])}</td>
-            <td>$${fmtRounded(dripReturnArr[i])}</td>
-            <td>$${fmtRounded(totalNonDripReturnArr[i])}</td>
-            <td>$${fmtRounded(totalDripReturnArr[i])}</td>
+            <td>${ cell(regReturnArr[i]) }</td>
+            <td>${ cell(dripReturnArr[i]) }</td>
+            <td>${ cell(totalNonDripReturnArr[i]) }</td>
+            <td>${ cell(totalDripReturnArr[i]) }</td>
           </tr>`;
       }).join('');
 
@@ -294,9 +297,9 @@
         return `
           <tr>
             <td>${y}</td>
-            <td>$${fmtRounded(invested)}</td>
-            <td>$${fmtRounded(totalNonDripReturnArr[endIdx])}</td>
-            <td>$${fmtRounded(totalDripReturnArr[endIdx])}</td>
+            <td>${ cell(invested) }</td>
+            <td>${ cell(totalNonDripReturnArr[endIdx]) }</td>
+            <td>${ cell(totalDripReturnArr[endIdx]) }</td>
           </tr>`;
       }).join('');
 
