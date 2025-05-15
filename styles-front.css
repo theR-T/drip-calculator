@@ -78,6 +78,7 @@ body {
   padding: 0.25rem 0;
   border-bottom: 1px solid #EEE;
 }
+
 .drip-detail-table tbody tr:nth-child(odd) {
   background-color: #e4e4e4;   /* every other line grey */
 }
@@ -153,6 +154,7 @@ body {
   padding: 0 .25rem;
   font-size: 12px;
   width: 0;
+  text-align: center;
 }
 .drip-detail-table th,
 .drip-detail-table td {

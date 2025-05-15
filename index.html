@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>DRIP Returns Calculator</title>
+  <title>Mortgage Investment Returns Calculator</title>
   <link rel="stylesheet" href="styles-front.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,19 +15,20 @@
 </head>
 <body>
   <section id="drip-calculator">
-    <h2>DRIP Returns Calculator</h2>
+    <h2>Mortgage Investment<br>Returns Calculator</h2>
 
     <label for="initialInvestment">Initial Investment ($)</label>
-    <input id="initialInvestment" type="number" min="0" step="10000" value="50000"/>
+    <input id="initialInvestment" type="text" inputmode="numeric" step="10000" value="50,000"/>
 
-    <label for="annualRate">Annual Dividend Yield (%)</label>
-    <input id="annualRate" type="number" min="0" step="0.25" value="9.75"/>
+
+    <label for="annualRate">Annualized Distribution Yield (%)</label>
+    <input id="annualRate" type="number" min="0" step="0.25" value="9.25"/>
 
     <label for="years">Time Horizon (years)</label>
     <input id="years" type="number" min="1" step="1" value="20"/>
 
     <label for="contributionAmount">Additional Contribution Amount ($)</label>
-    <input id="contributionAmount" type="number" min="0" step="1000" value="0"/>
+    <input id="contributionAmount" type="text" inputmode="numeric" value="0"/>
 
     <label for="contributionFrequency">Contribution Frequency (months)</label>
     <input id="contributionFrequency" type="number" min="1" step="1" value="12"/>
@@ -55,6 +56,10 @@
     let showYear = true;           // toggle state
     let monthlyTableHtml = "";     // populated after calculation
     let yearlyTableHtml  = "";     // populated after calculation
+
+    function formatWithCommas(n) {
+      return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
 
     // 1) pre-load your background image
     const bgImage = new Image();
@@ -90,12 +95,12 @@
     Chart.register(bgPlugin);
 
     let dripChart, dripData;
-
+    const fmtRounded = n => Math.round(n).toLocaleString();
     document.getElementById('calculateDrip').addEventListener('click', () => {
-      const P     = parseFloat(document.getElementById('initialInvestment').value);
+      const P = parseFloat(document.getElementById('initialInvestment').value.replace(/,/g, ''));
       const r     = parseFloat(document.getElementById('annualRate').value) / 100;
       const yrs   = parseInt(document.getElementById('years').value, 10);
-      const C     = parseFloat(document.getElementById('contributionAmount').value);
+      const C = parseFloat(document.getElementById('contributionAmount').value.replace(/,/g, ''));
       const freq  = parseInt(document.getElementById('contributionFrequency').value, 10);
       if ([P, r, yrs, C, freq].some(v => isNaN(v) || v < 0) || yrs===0||freq===0) {
         return alert('Enter valid non-negative numbers and years/frequency ≥1');
@@ -137,7 +142,7 @@
 
         // contributions
         let added = 0;
-        if (C > 0 && m % freq === 0) {
+        if (C > 0 && (m - 1) % freq === 0 && m !== 1) {
           principalDrip    += C;
           principalNonDrip += C;
           contribTotal     += C;
@@ -194,6 +199,11 @@
       const finalIndex     = dripData.totalNonDripReturnArr.length - 1;
       const finalNonDrip   = dripData.totalNonDripReturnArr[finalIndex];
       const finalDripTotal = dripData.totalDripReturnArr[finalIndex];
+      const totalContributed = P + contribTotal;
+      const finalDripValue = totalContributed + finalDripTotal;
+
+      const compoundAnnualDripReturn = Math.pow(finalDripValue / totalContributed, 1 / yrs) - 1;
+
 
       // formatter
       const fmt = n => n.toLocaleString(undefined, {
@@ -202,18 +212,24 @@
       });
 
       // 3) inject 3-row summary
+      const totalInvested = P + contribTotal;
+      const compoundedAnnualReturn = Math.pow((principalDrip / totalInvested), 1 / yrs) - 1;
       document.getElementById('dripResults').innerHTML = `
         <div class="result-row">
-          <strong>Annualized DRIP Return:</strong>
-          <span>${(dripData.annualizedDrip * 100).toFixed(2)}%</span>
+          <strong>Annualized Return (No DRIP):</strong>
+          <span>${(r * 100).toFixed(2)}%</span>
+        </div>
+        <div class="result-row">
+          <strong>Annualized Return (With DRIP):</strong>
+          <span>${(compoundAnnualDripReturn * 100).toFixed(2)}%</span>
         </div>
         <div class="result-row">
           <strong>Total Regular Return:</strong>
-          <span>$${fmt(finalNonDrip)}</span>
+          <span>$${fmtRounded(finalNonDrip)}</span>
         </div>
         <div class="result-row">
           <strong>Total DRIP Return:</strong>
-          <span>$${fmt(finalDripTotal)}</span>
+          <span>$${fmtRounded(finalDripTotal)}</span>
         </div>
       `;
 
@@ -221,18 +237,18 @@
       const monthlyRows = labels.map((m, i) => {
         let principalCell = '<td></td>';
         if (i === 0) {
-          principalCell = `<td>$${fmt(P)}</td>`;
+          principalCell = `<td>$${fmtRounded(P)}</td>`;
         } else if (contribThisMonthArr[i] > 0) {
-          principalCell = `<td>$${fmt(contribThisMonthArr[i])}</td>`;
+          principalCell = `<td>$${fmtRounded(contribThisMonthArr[i])}</td>`;
         }
         return `
           <tr>
             <td>${m}</td>
             ${principalCell}
-            <td>$${fmt(regReturnArr[i])}</td>
-            <td>$${fmt(dripReturnArr[i])}</td>
-            <td>$${fmt(totalNonDripReturnArr[i])}</td>
-            <td>$${fmt(totalDripReturnArr[i])}</td>
+            <td>$${fmtRounded(regReturnArr[i])}</td>
+            <td>$${fmtRounded(dripReturnArr[i])}</td>
+            <td>$${fmtRounded(totalNonDripReturnArr[i])}</td>
+            <td>$${fmtRounded(totalDripReturnArr[i])}</td>
           </tr>`;
       }).join('');
 
@@ -255,17 +271,32 @@
 
       // 2) Compute the yearLabels first, then build the yearly-summary HTML
       const yearLabels = [];
-      labels.forEach((m) => {
+      labels.forEach(m => {
         if (m % 12 === 0) yearLabels.push(m / 12);
       });
 
       const yearlyRows = yearLabels.map(y => {
-        const idx = y * 12 - 1;
+        // month indices for this year
+        const startIdx = (y - 1) * 12;
+        const endIdx   = y * 12 - 1;
+
+        // sum only this year's contributions
+        const thisYearContrib = contribThisMonthArr
+          .slice(startIdx, endIdx + 1)
+          .reduce((sum, c) => sum + c, 0);
+
+        // principal invested = initial P only in year 1, then 0 after that,
+        // plus contributions for **that** year
+        const invested =
+          (y === 1 ? P : 0) +
+          thisYearContrib;
+
         return `
           <tr>
             <td>${y}</td>
-            <td>$${fmt(totalNonDripReturnArr[idx])}</td>
-            <td>$${fmt(totalDripReturnArr[idx])}</td>
+            <td>$${fmtRounded(invested)}</td>
+            <td>$${fmtRounded(totalNonDripReturnArr[endIdx])}</td>
+            <td>$${fmtRounded(totalDripReturnArr[endIdx])}</td>
           </tr>`;
       }).join('');
 
@@ -274,6 +305,7 @@
           <thead>
             <tr>
               <th>Year</th>
+              <th>Principal<br>Invested</th>
               <th>Total Regular<br/>Return</th>
               <th>Total DRIP<br/>Return</th>
             </tr>
@@ -344,24 +376,37 @@
               title: {
                 display: true,
                 text: 'Total Return ($)'
+              },
+              ticks: {
+                callback: value => Math.round(value).toLocaleString()
               }
             }
           },
-          plugins:{
-            title: {
-              display: true,
-              text: 'Total DRIP vs Non-DRIP Returns Over Time',
-              padding: {
-                top: 10
-              },
-              font: {
-                size: 16,
-                weight: '500'
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  const value = Math.round(context.parsed.y).toLocaleString();
+                  return `${context.dataset.label}: $${value}`;
+                }
               }
             },
-            legend:{
-              position:'top', 
-              labels: {usePointStyle: true,  pointStyle: 'circle', boxWidth: 8, boxHeight: 8, padding: 16}}
+            title: {
+              display: true,
+              text: 'Total Returns Over Time (DRIP vs No DRIP)',
+              padding: { top: 10 },
+              font: { size: 16, weight: '500' }
+            },
+            legend: {
+              position: 'top',
+              labels: {
+                usePointStyle: true,
+                pointStyle: 'circle',
+                boxWidth: 8,
+                boxHeight: 8,
+                padding: 16
+              }
+            }
           },
         }
       });
@@ -461,6 +506,14 @@
 
     // auto‐run
     document.addEventListener('DOMContentLoaded',()=>document.getElementById('calculateDrip').click());
+    ['initialInvestment', 'contributionAmount'].forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener('blur', () => {
+        const raw = el.value.replace(/[^0-9.]/g, '');
+        if (raw) el.value = formatWithCommas(raw);
+      });
+    });
+
   </script>
 </body>
 </html>
