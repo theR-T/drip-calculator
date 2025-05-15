@@ -196,6 +196,7 @@
         totalDripReturnArr,
         contribThisMonthArr,
         annualizedDrip,
+        initialPrincipal: P
       };
 
       
@@ -429,18 +430,25 @@
     // CSV export
     document.getElementById('downloadCsv').addEventListener('click',()=>{
       if(!dripData) return alert('Run calc first');
-      const { labels, regReturnArr, dripReturnArr, totalNonDripReturnArr, totalDripReturnArr, contribThisMonthArr } = dripData;
+      const { labels, regReturnArr, dripReturnArr, totalNonDripReturnArr, totalDripReturnArr, contribThisMonthArr, initialPrincipal } = dripData;
       let csv = 'Month,Contribution,Regular Return,DRIP Return,Total non-DRIP Return,Total DRIP Return\n';
+      
       labels.forEach((m,i)=>{
-        csv += [
-          m,
-          contribThisMonthArr[i].toFixed(2),
-          regReturnArr[i].toFixed(2),
-          dripReturnArr[i].toFixed(2),
-          totalNonDripReturnArr[i].toFixed(2),
-          totalDripReturnArr[i].toFixed(2),
-        ].join(',')+'\n';
-      });
+      const contribution = i === 0
+        ? initialPrincipal
+        : contribThisMonthArr[i];
+
+      csv += [
+        m,
+        contribution.toFixed(2),               // ← use the one you just computed
+        regReturnArr[i].toFixed(2),
+        dripReturnArr[i].toFixed(2),
+        totalNonDripReturnArr[i].toFixed(2),
+        totalDripReturnArr[i].toFixed(2),
+      ].join(',') + '\n';
+    });
+
+      
       const blob = new Blob([csv],{type:'text/csv'}), url = URL.createObjectURL(blob);
       const a = document.createElement('a'); a.href=url; a.download='drip_returns.csv'; a.click();
       URL.revokeObjectURL(url);
