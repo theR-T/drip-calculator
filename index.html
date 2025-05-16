@@ -97,16 +97,44 @@
     let dripChart, dripData;
     const fmtRounded = n => Math.round(n).toLocaleString();
     document.getElementById('calculateDrip').addEventListener('click', () => {
-      const P = parseFloat(document.getElementById('initialInvestment').value.replace(/,/g, ''));
-      const r     = parseFloat(document.getElementById('annualRate').value) / 100;
-      const yrs   = parseInt(document.getElementById('years').value, 10);
-      const C = parseFloat(document.getElementById('contributionAmount').value.replace(/,/g, ''));
-      const freq  = parseInt(document.getElementById('contributionFrequency').value, 10);
+      // Get input values with validation
+      let initialInvestment = document.getElementById('initialInvestment').value.trim();
+      initialInvestment = initialInvestment === '' ? 0 : parseFloat(initialInvestment.replace(/,/g, ''));
+      initialInvestment = Math.min(initialInvestment, 1000000000); // Cap at 1 billion
+      
+      let annualRate = document.getElementById('annualRate').value.trim();
+      annualRate = annualRate === '' ? 0 : parseFloat(annualRate);
+      annualRate = Math.min(annualRate, 100); // Cap at 100%
+      
+      let years = document.getElementById('years').value.trim();
+      years = years === '' ? 0 : parseInt(years, 10);
+      years = Math.min(years, 200); // Cap at 200 years
+      
+      let contributionAmount = document.getElementById('contributionAmount').value.trim();
+      contributionAmount = contributionAmount === '' ? 0 : parseFloat(contributionAmount.replace(/,/g, ''));
+      contributionAmount = Math.min(contributionAmount, 1000000000); // Cap at 1 billion
+      
+      let freq = document.getElementById('contributionFrequency').value.trim();
+      freq = freq === '' ? 0 : parseInt(freq, 10);
+      
+      // Update the input fields with the validated values
+      document.getElementById('initialInvestment').value = initialInvestment === 0 ? '0' : formatWithCommas(initialInvestment);
+      document.getElementById('annualRate').value = annualRate;
+      document.getElementById('years').value = years;
+      document.getElementById('contributionAmount').value = contributionAmount === 0 ? '0' : formatWithCommas(contributionAmount);
+      document.getElementById('contributionFrequency').value = freq;
+      
+      // Convert to proper variables for calculation
+      const P = initialInvestment;
+      const r = annualRate / 100;
+      const yrs = years;
+      const C = contributionAmount;
+      
       if ([P, r, yrs, C, freq].some(v => isNaN(v) || v < 0) || yrs===0||freq===0) {
         return alert('Enter valid non-negative numbers and years/frequency ≥1');
       }
       function cell(v) {
-        // if v is null, undefined, NaN, zero, or an empty string, show “-”
+        // if v is null, undefined, NaN, zero, or an empty string, show "–"
         return v ? `$${fmtRounded(v)}` : '–';
       }
 
@@ -205,10 +233,10 @@
       const finalNonDrip   = dripData.totalNonDripReturnArr[finalIndex];
       const finalDripTotal = dripData.totalDripReturnArr[finalIndex];
       const totalContributed = P + contribTotal;
-      const finalDripValue = totalContributed + finalDripTotal;
-
+      const finalDripValue = principalDrip;
+      
+      // Calculate true compound annual growth rate for DRIP
       const compoundAnnualDripReturn = Math.pow(finalDripValue / totalContributed, 1 / yrs) - 1;
-
 
       // formatter
       const fmt = n => n.toLocaleString(undefined, {
@@ -218,7 +246,6 @@
 
       // 3) inject 3-row summary
       const totalInvested = P + contribTotal;
-      const compoundedAnnualReturn = Math.pow((principalDrip / totalInvested), 1 / yrs) - 1;
       document.getElementById('dripResults').innerHTML = `
         <div class="result-row">
           <strong>Annualized Return (No DRIP):</strong>
@@ -229,12 +256,20 @@
           <span>${(compoundAnnualDripReturn * 100).toFixed(2)}%</span>
         </div>
         <div class="result-row">
-          <strong>Total Regular Return:</strong>
-          <span>$${fmtRounded(finalNonDrip)}</span>
+          <strong>Total Regular Value:</strong>
+          <span>$${fmtRounded(totalInvested + finalNonDrip)}</span>
         </div>
         <div class="result-row">
-          <strong>Total DRIP Return:</strong>
-          <span>$${fmtRounded(finalDripTotal)}</span>
+          <strong>Total DRIP Value:</strong>
+          <span>$${fmtRounded(principalDrip)}</span>
+        </div>
+        <div class="result-row">
+          <strong>Growth % (Regular):</strong>
+          <span>${((finalNonDrip/totalInvested) * 100).toFixed(2)}%</span>
+        </div>
+        <div class="result-row">
+          <strong>Growth % (DRIP):</strong>
+          <span>${(((principalDrip/totalInvested) - 1) * 100).toFixed(2)}%</span>
         </div>
       `;
 
@@ -245,14 +280,22 @@
           : contribThisMonthArr[i];
 
         const principalCell = `<td>${ cell(invested) }</td>`;
+        
+        // Calculate cumulative invested up to this point
+        const totalInvestedToDate = P + contribThisMonthArr.slice(0, i+1).reduce((sum, val) => sum + val, 0);
+        
+        // Calculate total values
+        const regularValue = totalInvestedToDate + totalNonDripReturnArr[i];
+        const dripValue = totalInvestedToDate + totalDripReturnArr[i];
+        
         return `
           <tr>
             <td>${m}</td>
             ${principalCell}
             <td>${ cell(regReturnArr[i]) }</td>
             <td>${ cell(dripReturnArr[i]) }</td>
-            <td>${ cell(totalNonDripReturnArr[i]) }</td>
-            <td>${ cell(totalDripReturnArr[i]) }</td>
+            <td>${ cell(regularValue) }</td>
+            <td>${ cell(dripValue) }</td>
           </tr>`;
       }).join('');
 
@@ -264,12 +307,12 @@
               <th>Principal<br/>Invested</th>
               <th>Regular<br/>Return</th>
               <th>DRIP<br/>Return</th>
-              <th>Total Regular<br/>Return</th>
-              <th>Total DRIP<br/>Return</th>
+              <th>Total Regular<br/>Value</th>
+              <th>Total DRIP<br/>Value</th>
             </tr>
           </thead>
           <tbody>
-            ${monthlyRows}
+            ${monthlyRows} 
           </tbody>
         </table>`;
 
@@ -279,7 +322,7 @@
         if (m % 12 === 0) yearLabels.push(m / 12);
       });
 
-      const yearlyRows = yearLabels.map(y => {
+      const yearlyRows = yearLabels.map((y, index) => {
         // month indices for this year
         const startIdx = (y - 1) * 12;
         const endIdx   = y * 12 - 1;
@@ -294,13 +337,37 @@
         const invested =
           (y === 1 ? P : 0) +
           thisYearContrib;
+          
+        // Calculate cumulative invested up to this point
+        const totalInvestedToDate = P + contribThisMonthArr.slice(0, endIdx+1).reduce((sum, val) => sum + val, 0);
+        
+        // Calculate total values
+        const regularValue = totalInvestedToDate + totalNonDripReturnArr[endIdx];
+        const dripValue = totalInvestedToDate + totalDripReturnArr[endIdx];
+        
+        // Calculate returns for this specific year
+        let yearlyRegularReturn = 0;
+        let yearlyDripReturn = 0;
+        
+        if (index > 0) {
+          // For years after first year, calculate difference in returns from previous year
+          const prevYearIdx = yearLabels[index-1] * 12 - 1;
+          yearlyRegularReturn = totalNonDripReturnArr[endIdx] - totalNonDripReturnArr[prevYearIdx];
+          yearlyDripReturn = totalDripReturnArr[endIdx] - totalDripReturnArr[prevYearIdx];
+        } else {
+          // For first year, use the final value for that year
+          yearlyRegularReturn = totalNonDripReturnArr[endIdx];
+          yearlyDripReturn = totalDripReturnArr[endIdx];
+        }
 
         return `
           <tr>
             <td>${y}</td>
             <td>${ cell(invested) }</td>
-            <td>${ cell(totalNonDripReturnArr[endIdx]) }</td>
-            <td>${ cell(totalDripReturnArr[endIdx]) }</td>
+            <td>${ cell(yearlyRegularReturn) }</td>
+            <td>${ cell(yearlyDripReturn) }</td>
+            <td>${ cell(regularValue) }</td>
+            <td>${ cell(dripValue) }</td>
           </tr>`;
       }).join('');
 
@@ -310,8 +377,10 @@
             <tr>
               <th>Year</th>
               <th>Principal<br>Invested</th>
-              <th>Total Regular<br/>Return</th>
-              <th>Total DRIP<br/>Return</th>
+              <th>Regular<br/>Return</th>
+              <th>DRIP<br/>Return</th>
+              <th>Total Regular<br/>Value</th>
+              <th>Total DRIP<br/>Value</th>
             </tr>
           </thead>
           <tbody>
@@ -326,10 +395,22 @@
       // Build the datasets for the chart
       const yearlyDrip    = [];
       const yearlyNonDrip = [];
+      const yearlyDripTotal = [];
+      const yearlyNonDripTotal = [];
       yearLabels.forEach(y => {
         const idx = y * 12 - 1;
         yearlyDrip.push(totalDripReturnArr[idx]);
         yearlyNonDrip.push(totalNonDripReturnArr[idx]);
+        
+        // Calculate cumulative invested up to this point
+        const totalInvestedToDate = P + contribThisMonthArr.slice(0, idx+1).reduce((sum, val) => sum + val, 0);
+        
+        // Calculate total values
+        const nonDripTotal = totalInvestedToDate + totalNonDripReturnArr[idx];
+        const dripTotal = totalInvestedToDate + totalDripReturnArr[idx];
+        
+        yearlyDripTotal.push(dripTotal);
+        yearlyNonDripTotal.push(nonDripTotal);
       });
 
 
@@ -345,8 +426,8 @@
           labels: yearLabels.map(y => `Year ${y}`),
           datasets: [
             {
-              label: 'With DRIP',
-              data:  yearlyDrip,
+              label: 'With DRIP (Total Value)',
+              data:  yearlyDripTotal,
               borderColor:          '#006644',
               pointBackgroundColor: '#006644',
               pointBorderColor:     '#ffffff',  // white ring around the point
@@ -355,8 +436,8 @@
               fill:                 false
             },
             {
-              label: 'Without DRIP',
-              data:  yearlyNonDrip,
+              label: 'Without DRIP (Total Value)',
+              data:  yearlyNonDripTotal,
               borderColor:          '#004C84',
               pointBackgroundColor: '#004C84',
               pointBorderColor:     '#ffffff',
@@ -379,7 +460,7 @@
             y: {
               title: {
                 display: true,
-                text: 'Total Return ($)'
+                text: 'Total Investment Value ($)'
               },
               ticks: {
                 callback: value => Math.round(value).toLocaleString()
@@ -397,7 +478,7 @@
             },
             title: {
               display: true,
-              text: 'Total Returns Over Time (DRIP vs No DRIP)',
+              text: 'Total Investment Value Over Time (DRIP vs No DRIP)',
               padding: { top: 10 },
               font: { size: 16, weight: '500' }
             },
@@ -431,22 +512,39 @@
     document.getElementById('downloadCsv').addEventListener('click',()=>{
       if(!dripData) return alert('Run calc first');
       const { labels, regReturnArr, dripReturnArr, totalNonDripReturnArr, totalDripReturnArr, contribThisMonthArr, initialPrincipal } = dripData;
-      let csv = 'Month,Contribution,Regular Return,DRIP Return,Total non-DRIP Return,Total DRIP Return\n';
+      
+      // Include input parameters at the top of the CSV
+      let csv = 'DRIP Investment Calculator Results\n';
+      csv += 'Input Parameters:\n';
+      csv += `Initial Investment,$${parseFloat(document.getElementById('initialInvestment').value.replace(/,/g, '')).toFixed(2)}\n`;
+      csv += `Annualized Distribution Yield,${parseFloat(document.getElementById('annualRate').value).toFixed(2)}%\n`;
+      csv += `Time Horizon,${parseInt(document.getElementById('years').value)} years\n`;
+      csv += `Additional Contribution Amount,$${parseFloat(document.getElementById('contributionAmount').value.replace(/,/g, '')).toFixed(2)}\n`;
+      csv += `Contribution Frequency,${parseInt(document.getElementById('contributionFrequency').value)} months\n`;
+      csv += '\n'; // Empty row as separator
+      
+      // Original data rows
+      csv += 'Month,Contribution,Regular Return,DRIP Return,Total Regular Value,Total DRIP Value\n';
       
       labels.forEach((m,i)=>{
-      const contribution = i === 0
-        ? initialPrincipal
-        : contribThisMonthArr[i];
+        const contribution = i === 0
+          ? initialPrincipal
+          : contribThisMonthArr[i];
+          
+        // Calculate total values including principal
+        const totalInvestedToDate = initialPrincipal + contribThisMonthArr.slice(0, i+1).reduce((sum, val) => sum + val, 0);
+        const regularValue = totalInvestedToDate + totalNonDripReturnArr[i];
+        const dripValue = totalInvestedToDate + totalDripReturnArr[i];
 
-      csv += [
-        m,
-        contribution.toFixed(2),               // ← use the one you just computed
-        regReturnArr[i].toFixed(2),
-        dripReturnArr[i].toFixed(2),
-        totalNonDripReturnArr[i].toFixed(2),
-        totalDripReturnArr[i].toFixed(2),
-      ].join(',') + '\n';
-    });
+        csv += [
+          m,
+          contribution.toFixed(2),
+          regReturnArr[i].toFixed(2),
+          dripReturnArr[i].toFixed(2),
+          regularValue.toFixed(2),
+          dripValue.toFixed(2)
+        ].join(',') + '\n';
+      });
 
       
       const blob = new Blob([csv],{type:'text/csv'}), url = URL.createObjectURL(blob);
@@ -500,16 +598,34 @@
     // Email data
     document.getElementById('emailData').addEventListener('click',()=>{
       if(!dripData) return alert('Run calc first');
-      const { labels, regReturnArr, dripReturnArr, totalNonDripReturnArr, totalDripReturnArr, contribThisMonthArr } = dripData;
-      let body = 'Month,Contribution,Regular Return,DRIP Return,Total non-DRIP Return,Total DRIP Return\n';
+      const { labels, regReturnArr, dripReturnArr, totalNonDripReturnArr, totalDripReturnArr, contribThisMonthArr, initialPrincipal } = dripData;
+      
+      // Include input parameters at the top 
+      let body = 'DRIP Investment Calculator Results\n';
+      body += 'Input Parameters:\n';
+      body += `Initial Investment,$${parseFloat(document.getElementById('initialInvestment').value.replace(/,/g, '')).toFixed(2)}\n`;
+      body += `Annualized Distribution Yield,${parseFloat(document.getElementById('annualRate').value).toFixed(2)}%\n`;
+      body += `Time Horizon,${parseInt(document.getElementById('years').value)} years\n`;
+      body += `Additional Contribution Amount,$${parseFloat(document.getElementById('contributionAmount').value.replace(/,/g, '')).toFixed(2)}\n`;
+      body += `Contribution Frequency,${parseInt(document.getElementById('contributionFrequency').value)} months\n`;
+      body += '\n'; // Empty row as separator
+      
+      // Original data rows
+      body += 'Month,Contribution,Regular Return,DRIP Return,Total Regular Value,Total DRIP Value\n';
+      
       labels.forEach((m,i)=>{
+        // Calculate total values including principal
+        const totalInvestedToDate = initialPrincipal + contribThisMonthArr.slice(0, i+1).reduce((sum, val) => sum + val, 0);
+        const regularValue = totalInvestedToDate + totalNonDripReturnArr[i];
+        const dripValue = totalInvestedToDate + totalDripReturnArr[i];
+        
         body += [
           m,
           contribThisMonthArr[i].toFixed(2),
           regReturnArr[i].toFixed(2),
           dripReturnArr[i].toFixed(2),
-          totalNonDripReturnArr[i].toFixed(2),
-          totalDripReturnArr[i].toFixed(2),
+          regularValue.toFixed(2),
+          dripValue.toFixed(2)
         ].join(',')+'\n';
       });
       window.location.href = `mailto:?subject=${encodeURIComponent('DRIP Returns Data')}&body=${encodeURIComponent(body)}`;
