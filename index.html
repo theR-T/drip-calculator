@@ -91,8 +91,25 @@
       }
     };
 
+    const watermarkPlugin = {
+      id: 'watermark',
+      afterDraw: chart => {
+        const { ctx, chartArea } = chart;
+        ctx.save();
+        ctx.font           = '8px Montserrat';
+        ctx.fillStyle      = 'rgba(0,0,0,0.5)';
+        ctx.textAlign      = 'left';
+        ctx.textBaseline   = 'bottom';
+        ctx.fillText(
+          '© Morrison Financial',
+          chartArea.left - 83,
+          chartArea.bottom - -76        );
+        ctx.restore();
+      }
+    };
+
     // 3) register it globally
-    Chart.register(bgPlugin);
+    Chart.register(bgPlugin, watermarkPlugin);
 
     let dripChart, dripData;
     const fmtRounded = n => Math.round(n).toLocaleString();
