@@ -11,8 +11,7 @@
     href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
     rel="stylesheet"
   />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
+    <style>    .tooltip-icon {      display: inline-block;      width: 16px;      height: 16px;      line-height: 16px;      text-align: center;      background: #666;      color: white;      border-radius: 50%;      font-size: 12px;      cursor: help;      margin-left: 8px;      position: relative;      vertical-align: middle;    }        .tooltip-icon:hover::after {      content: attr(data-tooltip);      position: absolute;      bottom: 100%;      left: 50%;      transform: translateX(-50%);      padding: 8px 12px;      background: #333;      color: white;      border-radius: 4px;      font-size: 14px;      white-space: nowrap;      margin-bottom: 8px;      z-index: 1000;    }        .tooltip-icon:hover::before {      content: '';      position: absolute;      bottom: 100%;      left: 50%;      transform: translateX(-50%);      border: 6px solid transparent;      border-top-color: #333;      margin-bottom: 2px;      z-index: 1000;    }  </style>  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script></head>
 <body>
   <section id="drip-calculator">
     <h2>Mortgage Investment<br>Returns Calculator</h2>
@@ -52,7 +51,7 @@
     </div>
   </section>
 
-  <script>
+    <script>
     let showYear = true;           // toggle state
     let monthlyTableHtml = "";     // populated after calculation
     let yearlyTableHtml  = "";     // populated after calculation
@@ -243,7 +242,6 @@
         annualizedDrip,
         initialPrincipal: P
       };
-
       
       // grab the final cumulative numbers
       const finalIndex     = dripData.totalNonDripReturnArr.length - 1;
@@ -265,11 +263,11 @@
       const totalInvested = P + contribTotal;
       document.getElementById('dripResults').innerHTML = `
         <div class="result-row">
-          <strong>Annualized Return (No DRIP):</strong>
+          <strong>Annualized Return (Regular):</strong>
           <span>${(r * 100).toFixed(2)}%</span>
         </div>
         <div class="result-row">
-          <strong>Annualized Return (With DRIP):</strong>
+          <strong>Annualized Return (DRIP):</strong>
           <span>${(compoundAnnualDripReturn * 100).toFixed(2)}%</span>
         </div>
         <div class="result-row">
@@ -281,7 +279,7 @@
           <span>$${fmtRounded(principalDrip)}</span>
         </div>
         <div class="result-row">
-          <strong>Growth % (Regular):</strong>
+          <strong>Growth % (Regulars):</strong>
           <span>${((finalNonDrip/totalInvested) * 100).toFixed(2)}%</span>
         </div>
         <div class="result-row">
@@ -409,6 +407,17 @@
       document.getElementById('dripTableContainer').innerHTML =
         showYear ? yearlyTableHtml : monthlyTableHtml;
 
+      document
+        .querySelectorAll('#dripResults .result-row span')
+        .forEach(span => {
+          // Create and insert the tooltip icon
+          const iconEl = document.createElement('span');
+          iconEl.className = 'tooltip-icon';
+          iconEl.textContent = '?';
+          iconEl.setAttribute('data-tooltip', span.previousElementSibling.textContent);
+          span.appendChild(iconEl);
+        });
+
       // Build the datasets for the chart
       const yearlyDrip    = [];
       const yearlyNonDrip = [];
@@ -453,7 +462,7 @@
               fill:                 false
             },
             {
-              label: 'Without DRIP (Total Value)',
+              label: 'Regular (Total Value)',
               data:  yearlyNonDripTotal,
               borderColor:          '#004C84',
               pointBackgroundColor: '#004C84',
@@ -495,7 +504,7 @@
             },
             title: {
               display: true,
-              text: 'Total Investment Value Over Time (DRIP vs No DRIP)',
+              text: 'Total Investment Value Over Time (Regular VS DRIP)',
               padding: { top: 10 },
               font: { size: 16, weight: '500' }
             },

@@ -1,0 +1,94 @@
+/* TooltipIconStyles.css */
+.tooltip-container {
+    display: inline-block;
+    position: relative; /* only for stacking context */
+  }
+  
+  .tooltip-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.2rem;
+    height: 1.2rem;
+    line-height: 1.2rem;     /* make the text sit in the vertical middle */
+    vertical-align: middle;  /* align the whole circle to the middle of the text line */
+    background: #000000;
+    color: #eee;
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.1); /* extremely subtle white glow */
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+    margin-left: 0.5rem;
+    box-shadow: ;
+  }
+  
+  /* now fixed to the viewport */
+  .tooltip-bubble {
+    position: fixed;
+    min-width: 200px;
+    max-width: 95vw;
+    padding: 0.5rem;
+    background: #000;
+    color: #eee;
+    border-radius: 5px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.2;
+    word-wrap: break-word;
+    box-sizing: border-box;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s ease;
+    z-index: 1000;
+    white-space: pre-line;
+
+    /* arrow offset from JS via --arrow-left */
+    --arrow-left: 50%;       /* fallback center */
+  }
+  
+  .tooltip-container:hover .tooltip-bubble {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .tooltip-bubble {
+    position: fixed;
+    /* remove the old min-width:200px; */
+    max-width: 100px;        /* never wider than 100px */
+    padding: 0.5rem;
+    background: #000;
+    color: #eee;
+    border-radius: 5px;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    word-wrap: break-word;
+    box-sizing: border-box;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 1000;
+  }
+  
+  /* <-- this is your “speech bubble” arrow */
+  .tooltip-bubble::after {
+    content: '';
+    position: absolute;
+    top: 100%;               /* place it just below the bubble */
+    left: var(--arrow-left); /* use the computed offset */
+    transform: translateX(-50%);
+    border-width: 6px;       /* size of the arrow */
+    border-style: solid;
+    border-color: 
+      #000    /* arrow fill color */
+      transparent transparent transparent;
+  }
+  
+/* show on hover, focus, or when JS adds `.show` */
+.tooltip-container:hover .tooltip-bubble,
+.tooltip-container:focus-within .tooltip-bubble,
+.tooltip-container.show .tooltip-bubble {
+  opacity: 1;
+  pointer-events: auto;
+}

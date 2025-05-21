@@ -109,9 +109,7 @@ body {
       font-family: Montserrat, inherit;           /* inherit the site’s body font */
       color: inherit;                 /* inherit the site’s body text color */
   }
-  .chart-wrapper {
-    height: 300px;
-  }
+
 }
 
 
