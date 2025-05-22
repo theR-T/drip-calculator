@@ -11,8 +11,8 @@ body {
   border: 1px solid #E5E5E5;      /* match the light grey borders on investors page */
   border-radius: 5px;
   background: #FFFFFF;            /* solid white, like the page cards */
-  font-family: Montserrat, inherit;           /* inherit the site’s body font */
-  color: inherit;                 /* inherit the site’s body text color */
+  font-family: Montserrat, inherit;           /* inherit the site's body font */
+  color: inherit;                 /* inherit the site's body text color */
 }
 
 /* Header */
@@ -20,7 +20,7 @@ body {
   margin: 0 0 1rem;
   font-size: 1.75rem;
   font-weight: 600;
-  color: inherit;                 /* match the site’s heading color */
+  color: inherit;                 /* match the site's heading color */
 }
 
 /* Labels & Inputs */
@@ -40,13 +40,13 @@ body {
   color: inherit;
 }
 
-/* Button (use the site’s primary green) */
+/* Button (use the site's primary green) */
 #drip-calculator button {
   margin-top: 1rem;
   width: 100%;
   padding: 0.75rem;
   font-size: 1rem;
-  background-color: #006644;     /* Morrison’s “Book a Consultation” green */
+  background-color: #006644;     /* Morrison's "Book a Consultation" green */
   color: #FFFFFF;
   border: none;
   border-radius: 4px;
@@ -58,13 +58,94 @@ body {
   background-color: #005633;
 }
 
+.chart-container {
+  overflow-x: auto;
+  /* enable smooth touch-scroll on iOS */
+  -webkit-overflow-scrolling: touch;
+  width: 480px;
+  height: 420px; /* Increased from 380px to accommodate labels */
+  margin: 0 auto;
+  /* hide scrollbar in Firefox */
+  scrollbar-width: none;
+  /* hide scrollbar in IE10+ */
+  -ms-overflow-style: none;
+}
+
+/* hide scrollbar in WebKit browsers */
+.chart-container::-webkit-scrollbar {
+  display: none;
+}
+
 .chart-wrapper {
   position: relative;
-  /* full width of its parent, you can also max-width if you like */
-  width: 100%;
-  /* increase/decrease height as you wish */
-  height: 380px;
+  /* fixed width and height for consistent size */
+  width: 480px;
+  height: 420px; /* Increased from 380px to accommodate labels */
+  margin: 0 auto; /* center the chart */
+  transform-origin: left top;
 }
+
+@media only screen and (max-width: 580px) {
+  .chart-wrapper {
+    transform: scale(0.90);
+    margin: 0; /* Remove margin when scaled */
+  }
+  .chart-container {
+    width: 432px; /* 480px * 0.90 */
+    height: 378px; /* 420px * 0.90 */
+  }
+  
+  #drip-calculator {
+    max-width: 100%;
+    margin: 1rem auto;
+    padding: 1rem;
+    border: 1px solid #E5E5E5;
+    background: #FFFFFF;
+    font-family: Montserrat, inherit;
+    color: inherit;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .chart-wrapper {
+    transform: scale(0.80);
+  }
+  .chart-container {
+    width: 384px; /* 480px * 0.80 */
+    height: 336px; /* 420px * 0.80 */
+  }
+}
+
+@media only screen and (max-width: 450px) {
+  .chart-wrapper {
+    transform: scale(0.70);
+  }
+  .chart-container {
+    width: 336px; /* 480px * 0.70 */
+    height: 294px; /* 420px * 0.70 */
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  .chart-wrapper {
+    transform: scale(0.60);
+  }
+  .chart-container {
+    width: 288px; /* 480px * 0.60 */
+    height: 252px; /* 420px * 0.60 */
+  }
+}
+
+@media only screen and (max-width: 350px) {
+  .chart-wrapper {
+    transform: scale(0.50);
+  }
+  .chart-container {
+    width: 240px; /* 480px * 0.50 */
+    height: 210px; /* 420px * 0.50 */
+  }
+}
+
 
 /* Results rows */
 #dripResults {
@@ -78,13 +159,18 @@ body {
   padding: 0.25rem 0;
   border-bottom: 1px solid #EEE;
 }
+.result-row span {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
 
 .drip-detail-table tbody tr:nth-child(odd) {
   background-color: #e4e4e4;   /* every other line grey */
 }
 
 .drip-detail-table tbody tr:nth-child(even) {
-  background-color: #fafafa;   /* the “light green” you wanted */
+  background-color: #fafafa;   /* the "light green" you wanted */
 }
 
 /* Chart canvas */
@@ -98,20 +184,6 @@ body {
   border: 1px solid #E5E5E5;
   border-radius: 4px;
 }
-
-@media only screen and (max-width: 500px) {
-    #drip-calculator {
-      max-width: 100%;
-      margin: 1rem auto;
-      padding: 1rem;
-      border: 1px solid #E5E5E5;      /* match the light grey borders on investors page */
-      background: #FFFFFF;            /* solid white, like the page cards */
-      font-family: Montserrat, inherit;           /* inherit the site’s body font */
-      color: inherit;                 /* inherit the site’s body text color */
-  }
-
-}
-
 
 .drip-table-wrapper {
   display: grid;                   /* so that justify-items / justify-self actually work */
@@ -140,13 +212,13 @@ body {
   }
 }
 
-/* target the first column (“Month”) and give it a narrow width */
+/* target the first column ("Month") and give it a narrow width */
 .drip-detail-table th:first-child,
 .drip-detail-table td:first-child {
   width: 0;              /* about 4 characters wide; tweak as needed */
-  /* keep this one left-aligned so your “Month” headers still read naturally */
+  /* keep this one left-aligned so your "Month" headers still read naturally */
   text-align: center;
-  padding: 0;     /* optional padding so it doesn’t hug the edge */
+  padding: 0;     /* optional padding so it doesn't hug the edge */
 }
 .drip-detail-table td {
   padding: 0 .25rem;

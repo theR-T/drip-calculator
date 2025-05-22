@@ -5,13 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Mortgage Investment Returns Calculator</title>
   <link rel="stylesheet" href="styles-front.css"/>
+  <link rel="stylesheet" href="components/tooltipicon.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
     rel="stylesheet"
   />
-    <style>    .tooltip-icon {      display: inline-block;      width: 16px;      height: 16px;      line-height: 16px;      text-align: center;      background: #666;      color: white;      border-radius: 50%;      font-size: 12px;      cursor: help;      margin-left: 8px;      position: relative;      vertical-align: middle;    }        .tooltip-icon:hover::after {      content: attr(data-tooltip);      position: absolute;      bottom: 100%;      left: 50%;      transform: translateX(-50%);      padding: 8px 12px;      background: #333;      color: white;      border-radius: 4px;      font-size: 14px;      white-space: nowrap;      margin-bottom: 8px;      z-index: 1000;    }        .tooltip-icon:hover::before {      content: '';      position: absolute;      bottom: 100%;      left: 50%;      transform: translateX(-50%);      border: 6px solid transparent;      border-top-color: #333;      margin-bottom: 2px;      z-index: 1000;    }  </style>  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script></head>
+    <style></style>  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script></head>
 <body>
   <section id="drip-calculator">
     <h2>Mortgage Investment<br>Returns Calculator</h2>
@@ -35,8 +36,10 @@
     <button id="calculateDrip">Calculate</button>
 
     <div id="dripResults" aria-live="polite"></div>
-    <div class="chart-wrapper">
-      <canvas id="dripChart"></canvas>
+    <div class="chart-container">
+      <div class="chart-wrapper">
+        <canvas id="dripChart"></canvas>
+      </div>
     </div>
     <div class="table-controls">
       <button id="toggleView">Show Details by Month</button>
@@ -250,8 +253,10 @@
       const totalContributed = P + contribTotal;
       const finalDripValue = principalDrip;
       
-      // Calculate true compound annual growth rate for DRIP
-      const compoundAnnualDripReturn = Math.pow(finalDripValue / totalContributed, 1 / yrs) - 1;
+      // Calculate annualized DRIP return using new formula
+      const totalMonths = months;
+      const sumOfAllDrip = dripReturnArr.reduce((sum, drip) => sum + drip, 0);
+      const annualizedDripReturn = (sumOfAllDrip/(totalMonths/12))/P;
 
       // formatter
       const fmt = n => n.toLocaleString(undefined, {
@@ -263,27 +268,27 @@
       const totalInvested = P + contribTotal;
       document.getElementById('dripResults').innerHTML = `
         <div class="result-row">
-          <strong>Annualized Return (Regular):</strong>
+          <strong>Annualized Return (No DRIP):</strong>
           <span>${(r * 100).toFixed(2)}%</span>
         </div>
         <div class="result-row">
-          <strong>Annualized Return (DRIP):</strong>
-          <span>${(compoundAnnualDripReturn * 100).toFixed(2)}%</span>
+          <strong>Annualized Return (With DRIP):</strong>
+          <span>${(annualizedDripReturn * 100).toFixed(2)}%</span>
         </div>
         <div class="result-row">
-          <strong>Total Regular Value:</strong>
+          <strong>Total Value (No DRIP):</strong>
           <span>$${fmtRounded(totalInvested + finalNonDrip)}</span>
         </div>
         <div class="result-row">
-          <strong>Total DRIP Value:</strong>
+          <strong>Total Value (With DRIP):</strong>
           <span>$${fmtRounded(principalDrip)}</span>
         </div>
         <div class="result-row">
-          <strong>Growth % (Regulars):</strong>
+          <strong>Percentage Growth (No DRIP):</strong>
           <span>${((finalNonDrip/totalInvested) * 100).toFixed(2)}%</span>
         </div>
         <div class="result-row">
-          <strong>Growth % (DRIP):</strong>
+          <strong>Percentage Growth (With DRIP)</strong>
           <span>${(((principalDrip/totalInvested) - 1) * 100).toFixed(2)}%</span>
         </div>
       `;
@@ -320,10 +325,10 @@
             <tr>
               <th>Month</th>
               <th>Principal<br/>Invested</th>
-              <th>Regular<br/>Return</th>
-              <th>DRIP<br/>Return</th>
-              <th>Total Regular<br/>Value</th>
-              <th>Total DRIP<br/>Value</th>
+              <th>Return<br/>(No DRIP)</th>
+              <th>Return<br/>(With DRIP)</th>
+              <th>Total Value<br/>(No DRIP)</th>
+              <th>Total Value<br/>(With DRIP)</th>
             </tr>
           </thead>
           <tbody>
@@ -391,11 +396,11 @@
           <thead>
             <tr>
               <th>Year</th>
-              <th>Principal<br>Invested</th>
-              <th>Regular<br/>Return</th>
-              <th>DRIP<br/>Return</th>
-              <th>Total Regular<br/>Value</th>
-              <th>Total DRIP<br/>Value</th>
+              <th>Principal<br/>Invested</th>
+              <th>Return<br/>(No DRIP)</th>
+              <th>Return<br/>(With DRIP)</th>
+              <th>Total Value<br/>(No DRIP)</th>
+              <th>Total Value<br/>(With DRIP)</th>
             </tr>
           </thead>
           <tbody>
@@ -410,12 +415,31 @@
       document
         .querySelectorAll('#dripResults .result-row span')
         .forEach(span => {
-          // Create and insert the tooltip icon
-          const iconEl = document.createElement('span');
-          iconEl.className = 'tooltip-icon';
-          iconEl.textContent = '?';
-          iconEl.setAttribute('data-tooltip', span.previousElementSibling.textContent);
-          span.appendChild(iconEl);
+          // Create tooltip container and components
+          const container = document.createElement('span');
+          container.className = 'tooltip-container';
+          
+          const iconEl = document.createElement('span');          iconEl.className = 'tooltip-icon';          iconEl.textContent = '?';                    const bubble = document.createElement('span');          bubble.className = 'tooltip-bubble';                    // Get the label text to determine which tooltip to show          const label = span.previousElementSibling.textContent;                    // Customize tooltip text based on the metric          
+          // switch(label) {            case "Annualized Return (Regular):":              bubble.textContent = "The annual distribution yield you selected. This represents the regular dividend payments if not reinvested.";              break;            case "Annualized Return (DRIP):":              bubble.textContent = "Average annual return when dividends are reinvested. Calculated as: (Sum of all DRIP returns / Years) / Average Principal. This shows the compound effect of reinvesting dividends.";              break;            case "Total Regular Value:":              bubble.textContent = "Final value of your investment without reinvesting dividends. Includes your initial investment, additional contributions, and accumulated dividends.";              break;            case "Total DRIP Value:":              bubble.textContent = "Final value of your investment with dividend reinvestment. Shows how your wealth grows when dividends are automatically reinvested to buy more units.";              break;            case "Growth % (Regulars):":              bubble.textContent = "Percentage increase from your total invested amount when not reinvesting dividends. Calculated as: (Total Returns / Total Invested) × 100";              break;            case "Growth % (DRIP):":              bubble.textContent = "Percentage increase from your total invested amount with dividend reinvestment. Calculated as: ((Final DRIP Value / Total Invested) - 1) × 100";              break;            default:              bubble.textContent = label;          }                    // Assemble the tooltip
+          container.appendChild(iconEl);
+          container.appendChild(bubble);
+          span.appendChild(container);
+          
+          // Add mousemove handler for bubble positioning
+          container.addEventListener('mousemove', e => {
+            const iconRect = container.getBoundingClientRect();
+            const bubbleW = bubble.offsetWidth;
+            const bubbleH = bubble.offsetHeight;
+            
+            const left = iconRect.left + iconRect.width/2 - bubbleW/2;
+            const top = iconRect.top - bubbleH - 8;
+            
+            bubble.style.left = `${left}px`;
+            bubble.style.top = `${top}px`;
+            
+            const arrowX = iconRect.left + iconRect.width/2 - left;
+            bubble.style.setProperty('--arrow-left', `${arrowX}px`);
+          });
         });
 
       // Build the datasets for the chart
@@ -442,85 +466,115 @@
 
       // Draw chart
       if (dripChart) dripChart.destroy();
+
+      // Set explicit canvas dimensions
+      const canvas = document.getElementById('dripChart');
+      canvas.width = 480;
+      canvas.height = 380;
+      
       Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
-      Chart.defaults.color       = getComputedStyle(document.body).color;
-      const ctx = document.getElementById('dripChart').getContext('2d');
+      Chart.defaults.color = getComputedStyle(document.body).color;
       Chart.defaults.devicePixelRatio = 2;
-      dripChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: yearLabels.map(y => `Year ${y}`),
-          datasets: [
-            {
-              label: 'With DRIP (Total Value)',
-              data:  yearlyDripTotal,
-              borderColor:          '#006644',
-              pointBackgroundColor: '#006644',
-              pointBorderColor:     '#ffffff',  // white ring around the point
-              pointRadius:          4,
-              tension:              0.3,
-              fill:                 false
-            },
-            {
-              label: 'Regular (Total Value)',
-              data:  yearlyNonDripTotal,
-              borderColor:          '#004C84',
-              pointBackgroundColor: '#004C84',
-              pointBorderColor:     '#ffffff',
-              pointRadius:          4,
-              tension:              0.3,
-              fill:                 false
-            }
-          ]
-        },
-        options: {
-          responsive:true, maintainAspectRatio:false,
-          scales: {
-            x: {
-              type: 'category',       // treat labels array as categories
-              title: {
-                display: true,
-                text: 'Number of years invested'
+      
+      const ctx = canvas.getContext('2d');
+      
+      // Delay chart creation slightly to ensure proper rendering
+      setTimeout(() => {
+        // Create chart with fixed dimensions
+        dripChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: yearLabels.map(y => `Year ${y}`),
+            datasets: [
+              {
+                label: 'Total Value (With DRIP)',
+                data: yearlyDripTotal,
+                borderColor: '#006644',
+                pointBackgroundColor: '#006644',
+                pointBorderColor: '#ffffff',  // white ring around the point
+                pointRadius: 4,
+                tension: 0.3,
+                fill: false
               },
-            },
-            y: {
-              title: {
-                display: true,
-                text: 'Total Investment Value ($)'
-              },
-              ticks: {
-                callback: value => Math.round(value).toLocaleString()
+              {
+                label: 'Total Value (no DRIP)',
+                data: yearlyNonDripTotal,
+                borderColor: '#004C84',
+                pointBackgroundColor: '#004C84',
+                pointBorderColor: '#ffffff',
+                pointRadius: 4,
+                tension: 0.3,
+                fill: false
               }
-            }
+            ]
           },
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: function (context) {
-                  const value = Math.round(context.parsed.y).toLocaleString();
-                  return `${context.dataset.label}: $${value}`;
+          options: {
+            responsive: false,
+            maintainAspectRatio: false,
+            layout: {
+              padding: {
+                left: 5,
+                right: 10,
+                top: 5,
+                bottom: 5
+              }
+            },
+            scales: {
+              x: {
+                type: 'category',
+                title: {
+                  display: true,
+                  text: 'Number of years invested'
+                }
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: 'Total Investment Value ($)'
+                },
+                ticks: {
+                  callback: value => Math.round(value).toLocaleString()
                 }
               }
             },
-            title: {
-              display: true,
-              text: 'Total Investment Value Over Time (Regular VS DRIP)',
-              padding: { top: 10 },
-              font: { size: 16, weight: '500' }
-            },
-            legend: {
-              position: 'top',
-              labels: {
-                usePointStyle: true,
-                pointStyle: 'circle',
-                boxWidth: 8,
-                boxHeight: 8,
-                padding: 16
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    const value = Math.round(context.parsed.y).toLocaleString();
+                    return `${context.dataset.label}: $${value}`;
+                  }
+                }
+              },
+              title: {
+                display: true,
+                text: 'Total Investment Value Over Time (Regular VS DRIP)',
+                padding: { top: 10 },
+                font: { size: 16, weight: '500' }
+              },
+              legend: {
+                position: 'top',
+                labels: {
+                  usePointStyle: true,
+                  pointStyle: 'circle',
+                  boxWidth: 8,
+                  boxHeight: 8,
+                  padding: 16
+                }
               }
             }
-          },
+          }
+        });
+      }, 100); // 100ms delay
+
+      // Add resize observer to handle container size changes
+      const chartWrapper = document.querySelector('.chart-wrapper');
+      const resizeObserver = new ResizeObserver(entries => {
+        if (dripChart) {
+          dripChart.resize();
         }
       });
+      resizeObserver.observe(chartWrapper);
     })
 
     // 2) Toggle button
@@ -550,7 +604,7 @@
       csv += '\n'; // Empty row as separator
       
       // Original data rows
-      csv += 'Month,Contribution,Regular Return,DRIP Return,Total Regular Value,Total DRIP Value\n';
+      csv += 'Month,Contribution,Return (No DRIP),Return (With DRIP),Total Value (No DRIP),Total Value (With DRIP)\n';
       
       labels.forEach((m,i)=>{
         const contribution = i === 0
@@ -581,40 +635,38 @@
     // Chart export
     document.getElementById('downloadChart').addEventListener('click', () => {
       if (!dripChart) return alert('Run calc first');
-      const PAD   = 20;   // CSS-pixel padding around chart
       const SCALE = 2;    // 2× pixel density
+      
+      // Default dimensions that should always be used for export
+      const DEFAULT_WIDTH = 480;
+      const DEFAULT_HEIGHT = 380;
 
-      // 1) grab the on-screen chart <canvas> and its logical size
+      // 1) grab the on-screen chart
       const srcCanvas = dripChart.canvas;
-      const cssW      = srcCanvas.width;
-      const cssH      = srcCanvas.height;
 
-      // 2) build an off-screen canvas
+      // 2) build an off-screen canvas with default dimensions
       const exportCanvas = document.createElement('canvas');
-      // a) logical pixel size = (chart + 2*PAD) × SCALE
-      exportCanvas.width  = (cssW + PAD * 2) * SCALE;
-      exportCanvas.height = (cssH + PAD * 2) * SCALE;
-      // b) keep its CSS size equal to the on-screen chart + padding
-      exportCanvas.style.width  = `${cssW + PAD * 2}px`;
-      exportCanvas.style.height = `${cssH + PAD * 2}px`;
+      exportCanvas.width = DEFAULT_WIDTH * SCALE;
+      exportCanvas.height = DEFAULT_HEIGHT * SCALE;
+      exportCanvas.style.width = `${DEFAULT_WIDTH}px`;
+      exportCanvas.style.height = `${DEFAULT_HEIGHT}px`;
 
       const ctx = exportCanvas.getContext('2d');
-      // 3) scale drawing operations so that your chart is crisp
+      // 3) scale drawing operations for crisp rendering
       ctx.scale(SCALE, SCALE);
 
-      // 4) fill the entire off-screen canvas white (covers both chart area + padding)
+      // 4) fill the canvas white
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, cssW + PAD * 2, cssH + PAD * 2);
+      ctx.fillRect(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
-      // 5) draw your on-screen chart into the middle
-      //    note: drawImage uses the CSS-pixel dimensions here
-      ctx.drawImage(srcCanvas, PAD, PAD, cssW, cssH);
+      // 5) draw the source canvas at default dimensions
+      ctx.drawImage(srcCanvas, 0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
-      // 6) export that off-screen canvas
+      // 6) export
       exportCanvas.toBlob(blob => {
         const url = URL.createObjectURL(blob);
-        const a   = document.createElement('a');
-        a.href    = url;
+        const a = document.createElement('a');
+        a.href = url;
         a.download = 'drip_chart@2x.png';
         a.click();
         URL.revokeObjectURL(url);
@@ -637,7 +689,7 @@
       body += '\n'; // Empty row as separator
       
       // Original data rows
-      body += 'Month,Contribution,Regular Return,DRIP Return,Total Regular Value,Total DRIP Value\n';
+      body += 'Month,Contribution,Regular Return,DRIP Return,Total Value (No DRIP),Total Value (With DRIP)\n';
       
       labels.forEach((m,i)=>{
         // Calculate total values including principal
