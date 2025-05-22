@@ -42,7 +42,7 @@ body {
 
 /* Button (use the site's primary green) */
 #drip-calculator button {
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   width: 100%;
   padding: 0.75rem;
   font-size: 1rem;
@@ -59,28 +59,16 @@ body {
 }
 
 .chart-container {
-  overflow-x: auto;
-  /* enable smooth touch-scroll on iOS */
-  -webkit-overflow-scrolling: touch;
   width: 480px;
-  height: 420px; /* Increased from 380px to accommodate labels */
+  height: 380px;
   margin: 0 auto;
-  /* hide scrollbar in Firefox */
-  scrollbar-width: none;
-  /* hide scrollbar in IE10+ */
-  -ms-overflow-style: none;
-}
-
-/* hide scrollbar in WebKit browsers */
-.chart-container::-webkit-scrollbar {
-  display: none;
 }
 
 .chart-wrapper {
   position: relative;
   /* fixed width and height for consistent size */
   width: 480px;
-  height: 420px; /* Increased from 380px to accommodate labels */
+  height: 380px;
   margin: 0 auto; /* center the chart */
   transform-origin: left top;
 }
@@ -92,7 +80,7 @@ body {
   }
   .chart-container {
     width: 432px; /* 480px * 0.90 */
-    height: 378px; /* 420px * 0.90 */
+    height: 342px; /* 380px * 0.90 */
   }
   
   #drip-calculator {
@@ -112,7 +100,7 @@ body {
   }
   .chart-container {
     width: 384px; /* 480px * 0.80 */
-    height: 336px; /* 420px * 0.80 */
+    height: 304px; /* 380px * 0.80 */
   }
 }
 
@@ -122,7 +110,7 @@ body {
   }
   .chart-container {
     width: 336px; /* 480px * 0.70 */
-    height: 294px; /* 420px * 0.70 */
+    height: 266px; /* 380px * 0.70 */
   }
 }
 
@@ -132,7 +120,7 @@ body {
   }
   .chart-container {
     width: 288px; /* 480px * 0.60 */
-    height: 252px; /* 420px * 0.60 */
+    height: 228px; /* 380px * 0.60 */
   }
 }
 
@@ -142,7 +130,7 @@ body {
   }
   .chart-container {
     width: 240px; /* 480px * 0.50 */
-    height: 210px; /* 420px * 0.50 */
+    height: 190px; /* 380px * 0.50 */
   }
 }
 
