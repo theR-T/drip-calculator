@@ -59,6 +59,16 @@
     let monthlyTableHtml = "";     // populated after calculation
     let yearlyTableHtml  = "";     // populated after calculation
 
+    // Customizable tooltip descriptions
+    const tooltipDescriptions = {
+      "Annualized Return (No DRIP):": "The annual distribution yield you selected. This represents the regular dividend payments if not reinvested.",
+      "Annualized Return (With DRIP):": "Average annual return when dividends are reinvested. Calculated as: (Sum of all DRIP returns / Years) / Average Principal. This shows the compound effect of reinvesting dividends.",
+      "Total Value (No DRIP):": "Final value of your investment without reinvesting dividends. Includes your initial investment, additional contributions, and accumulated dividends.",
+      "Total Value (With DRIP):": "Final value of your investment with dividend reinvestment. Shows how your wealth grows when dividends are automatically reinvested.",
+      "Percentage Growth (No DRIP):": "Percentage increase from your total invested amount when not reinvesting dividends. Calculated as: (Total Returns / Total Invested) × 100",
+      "Percentage Growth (With DRIP)": "Percentage increase from your total invested amount with dividend reinvestment. Calculated as: ((Final DRIP Value / Total Invested) - 1) × 100"
+    };
+
     function formatWithCommas(n) {
       return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
@@ -419,8 +429,20 @@
           const container = document.createElement('span');
           container.className = 'tooltip-container';
           
-          const iconEl = document.createElement('span');          iconEl.className = 'tooltip-icon';          iconEl.textContent = '?';                    const bubble = document.createElement('span');          bubble.className = 'tooltip-bubble';                    // Get the label text to determine which tooltip to show          const label = span.previousElementSibling.textContent;                    // Customize tooltip text based on the metric          
-          // switch(label) {            case "Annualized Return (Regular):":              bubble.textContent = "The annual distribution yield you selected. This represents the regular dividend payments if not reinvested.";              break;            case "Annualized Return (DRIP):":              bubble.textContent = "Average annual return when dividends are reinvested. Calculated as: (Sum of all DRIP returns / Years) / Average Principal. This shows the compound effect of reinvesting dividends.";              break;            case "Total Regular Value:":              bubble.textContent = "Final value of your investment without reinvesting dividends. Includes your initial investment, additional contributions, and accumulated dividends.";              break;            case "Total DRIP Value:":              bubble.textContent = "Final value of your investment with dividend reinvestment. Shows how your wealth grows when dividends are automatically reinvested to buy more units.";              break;            case "Growth % (Regulars):":              bubble.textContent = "Percentage increase from your total invested amount when not reinvesting dividends. Calculated as: (Total Returns / Total Invested) × 100";              break;            case "Growth % (DRIP):":              bubble.textContent = "Percentage increase from your total invested amount with dividend reinvestment. Calculated as: ((Final DRIP Value / Total Invested) - 1) × 100";              break;            default:              bubble.textContent = label;          }                    // Assemble the tooltip
+          const iconEl = document.createElement('span');
+          iconEl.className = 'tooltip-icon';
+          iconEl.textContent = '?';
+          
+          const bubble = document.createElement('span');
+          bubble.className = 'tooltip-bubble';
+          
+          // Get the label text to determine which tooltip to show
+          const label = span.previousElementSibling.textContent;
+          
+          // Use the configurable tooltip descriptions
+          bubble.textContent = tooltipDescriptions[label] || label;
+          
+          // Assemble the tooltip
           container.appendChild(iconEl);
           container.appendChild(bubble);
           span.appendChild(container);
