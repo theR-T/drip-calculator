@@ -3,7 +3,7 @@
  * Plugin Name: DRIP Calculator
  * Plugin URI: https://morrisonfinancial.com
  * Description: A calculator for showing DRIP investment returns vs regular investment returns
- * Version: 1.0.5
+ * Version: 1.0.9
  * Author: Morrison Financial
  * Author URI: https://morrisonfinancial.com
  * License: GPL v2 or later
@@ -16,31 +16,35 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('DRIP_CALCULATOR_VERSION', '1.0.5');
+define('DRIP_CALCULATOR_VERSION', '1.0.9');
 define('DRIP_CALCULATOR_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('DRIP_CALCULATOR_PLUGIN_URL', plugin_dir_url(__FILE__));
 
 // Enqueue scripts and styles
 function drip_calculator_enqueue_scripts() {
-    // Enqueue Chart.js from CDN first
-    wp_enqueue_script('chartjs', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js', array(), '4.4.0', false);
-    
-    // Enqueue Montserrat font
-    wp_enqueue_style('montserrat', 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap', array(), null);
-    
-    // Enqueue our custom styles
-    wp_enqueue_style('drip-calculator-style', DRIP_CALCULATOR_PLUGIN_URL . 'css/styles-front.css', array(), DRIP_CALCULATOR_VERSION);
-    wp_enqueue_style('drip-tooltip-style', DRIP_CALCULATOR_PLUGIN_URL . 'components/tooltipicon.css', array(), DRIP_CALCULATOR_VERSION);
-    
-    // Enqueue our custom script with Chart.js dependency
-    wp_enqueue_script('drip-calculator-script', DRIP_CALCULATOR_PLUGIN_URL . 'js/calculator.js', array('chartjs'), DRIP_CALCULATOR_VERSION, true);
+    // Only load on pages that have the shortcode
+    global $post;
+    if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'drip_calculator')) {
+        // Enqueue Chart.js from CDN
+        wp_enqueue_script('chartjs', 'https://cdn.jsdelivr.net/npm/chart.js', array(), '4.0.0', true);
+        
+        // Enqueue Montserrat font
+        wp_enqueue_style('montserrat', 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap', array(), null);
+        
+        // Enqueue our custom styles
+        wp_enqueue_style('drip-calculator-style', DRIP_CALCULATOR_PLUGIN_URL . 'css/styles-front.css', array(), DRIP_CALCULATOR_VERSION);
+        wp_enqueue_style('drip-tooltip-style', DRIP_CALCULATOR_PLUGIN_URL . 'components/tooltipicon.css', array(), DRIP_CALCULATOR_VERSION);
+        
+        // Enqueue our custom script
+        wp_enqueue_script('drip-calculator-script', DRIP_CALCULATOR_PLUGIN_URL . 'js/calculator.js', array('chartjs'), DRIP_CALCULATOR_VERSION, true);
 
-    // Localize script with plugin data
-    wp_localize_script('drip-calculator-script', 'dripCalculator', array(
-        'pluginUrl' => DRIP_CALCULATOR_PLUGIN_URL,
-        'ajaxUrl' => admin_url('admin-ajax.php'),
-        'nonce' => wp_create_nonce('drip_calculator_nonce')
-    ));
+        // Localize script with plugin data
+        wp_localize_script('drip-calculator-script', 'dripCalculator', array(
+            'pluginUrl' => DRIP_CALCULATOR_PLUGIN_URL,
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('drip_calculator_nonce')
+        ));
+    }
 }
 add_action('wp_enqueue_scripts', 'drip_calculator_enqueue_scripts');
 
@@ -114,4 +118,47 @@ function drip_calculator_deactivate() {
     flush_rewrite_rules();
 }
 
- 
+// Add AJAX endpoint for email functionality
+function drip_calculator_email() {
+    // Verify nonce
+    if (!check_ajax_referer('drip_calculator_nonce', 'nonce', false)) {
+        wp_send_json_error('Invalid security token');
+        wp_die();
+    }
+
+    // Get POST data
+    $data = isset($_POST['data']) ? sanitize_text_field($_POST['data']) : '';
+    $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
+    
+    if (empty($email)) {
+        wp_send_json_error('Email address is required');
+        wp_die();
+    }
+
+    // Email headers
+    $headers = array('Content-Type: text/csv; charset=utf-8');
+    
+    // Send email with data attachment
+    $sent = wp_mail(
+        $email,
+        'DRIP Returns Data',
+        'Please find your DRIP calculator results attached.',
+        $headers,
+        array(
+            array(
+                'content' => $data,
+                'filename' => 'drip_returns.csv',
+                'type' => 'text/csv'
+            )
+        )
+    );
+
+    if ($sent) {
+        wp_send_json_success('Data sent successfully');
+    } else {
+        wp_send_json_error('Failed to send email');
+    }
+    wp_die();
+}
+add_action('wp_ajax_drip_calculator_email', 'drip_calculator_email');
+add_action('wp_ajax_nopriv_drip_calculator_email', 'drip_calculator_email'); 

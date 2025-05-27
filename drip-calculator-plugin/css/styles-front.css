@@ -1,0 +1,222 @@
+body {
+  font-family: Montserrat
+}
+
+
+/* DRIP Calculator Container */
+#drip-calculator {
+  max-width: 480px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border: 1px solid #E5E5E5;      /* match the light grey borders on investors page */
+  border-radius: 5px;
+  background: #FFFFFF;            /* solid white, like the page cards */
+  font-family: Montserrat, inherit;           /* inherit the site's body font */
+  color: inherit;                 /* inherit the site's body text color */
+}
+
+/* Header */
+#drip-calculator h2 {
+  margin: 0 0 1rem;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: inherit;                 /* match the site's heading color */
+}
+
+/* Labels & Inputs */
+#drip-calculator label {
+  display: block;
+  margin: 0.75rem 0 0.25rem;
+  font-weight: 500;
+}
+#drip-calculator input {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #CCCCCC;     /* a touch darker than container border */
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-family: Montserrat;
+  color: inherit;
+}
+
+/* Button (use the site's primary green) */
+#drip-calculator button {
+  margin-top: 1.5rem;
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  background-color: #006644;     /* Morrison's "Book a Consultation" green */
+  color: #FFFFFF;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color .2s ease-in-out;
+  font-family: inherit;
+}
+#drip-calculator button:hover {
+  background-color: #005633;
+}
+
+.chart-container {
+  width: 100%;
+  max-width: 480px;
+  height: 380px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+  height: 380px;
+  margin: 0 auto;
+}
+
+@media only screen and (max-width: 580px) {
+  #drip-calculator {
+    max-width: 100%;
+    margin: 1rem auto;
+    padding: 1rem;
+    border: 1px solid #E5E5E5;
+    background: #FFFFFF;
+    font-family: Montserrat, inherit;
+    color: inherit;
+  }
+  
+  .chart-container {
+    height: 300px;
+  }
+  
+  .chart-wrapper {
+    height: 300px;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .chart-container {
+    height: 280px;
+  }
+  
+  .chart-wrapper {
+    height: 280px;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  .chart-container {
+    height: 250px;
+  }
+  
+  .chart-wrapper {
+    height: 250px;
+  }
+}
+
+@media only screen and (max-width: 350px) {
+  .chart-container {
+    height: 220px;
+  }
+  
+  .chart-wrapper {
+    height: 220px;
+  }
+}
+
+
+/* Results rows */
+#dripResults {
+  margin-top: 1.5rem;
+  line-height: 1.5;
+  font-family: inherit;
+}
+#dripResults .result-row {  
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #EEE;
+}
+.result-row span {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.drip-detail-table tbody tr:nth-child(odd) {
+  background-color: #e4e4e4;   /* every other line grey */
+}
+
+.drip-detail-table tbody tr:nth-child(even) {
+  background-color: #fafafa;   /* the "light green" you wanted */
+}
+
+/* Chart canvas */
+#dripChart {
+  width: 100%;
+  height: 100%;             /* cap its height */
+  margin-top: 1.5rem;
+  margin-bottom: -1.5rem;
+  display: block;
+  background: #FFFFFF;
+  border: 1px solid #E5E5E5;
+  border-radius: 4px;
+}
+
+.drip-table-wrapper {
+  display: grid;                   /* so that justify-items / justify-self actually work */
+  container-type: inline-size;     /* turn it into a container you can query */
+  container-name: table-wrapper;
+  justify-items: center;           /* default: center the table */
+  overflow-x: auto;
+  /* enable smooth touch-scroll on iOS */
+  -webkit-overflow-scrolling: touch;
+  
+  /* hide scrollbar in Firefox */
+  scrollbar-width: none;
+  /* hide scrollbar in IE10+ */
+  -ms-overflow-style: none;
+}
+
+/* hide scrollbar in WebKit browsers */
+.drip-table-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+
+@container drip-table-wrapper (max-width: 480px) {
+  .drip-detail-table {
+    justify-self: start;   /* align the table left when ≤480px to fit huge numbers if needed */
+  }
+}
+
+/* target the first column ("Month"/"Year") and give it minimal padding */
+.drip-detail-table th:first-child,
+.drip-detail-table td:first-child {
+  text-align: center;
+  padding: 0.25rem 0.1rem;
+  font-weight: 500;
+  min-width: 60px;
+}
+
+/* all other columns get minimal padding */
+.drip-detail-table th:not(:first-child),
+.drip-detail-table td:not(:first-child) {
+  padding: 0.25rem 0.1rem;
+  text-align: center;
+  font-size: 12px;
+  white-space: nowrap;
+  min-width: 45px;
+}
+
+.drip-detail-table th,
+.drip-detail-table td {
+  font-size: 12px;
+  border: none;
+}
+
+.drip-detail-table th {
+  font-weight: 600;
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  padding: 0.25rem 0.1rem;
+} 
