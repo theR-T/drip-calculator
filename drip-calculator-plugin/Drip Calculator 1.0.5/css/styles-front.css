@@ -60,7 +60,7 @@ body {
 
 .chart-container {
   width: 480px;
-  height: 380px;
+  height: 400px;
   margin: 1rem auto;
   overflow: hidden;
 }
@@ -68,13 +68,19 @@ body {
 .chart-wrapper {
   position: relative;
   width: 480px;
-  height: 380px;
+  height: 400px;
   margin: 0 auto;
 }
 
 #dripChart {
-  width: 480px;
-  height: 380px;
+  width: 480px !important;
+  height: 400px !important;
+  margin-top: 1.5rem;
+  margin-bottom: -1.5rem;
+  display: block;
+  background: #FFFFFF;
+  border: 1px solid #E5E5E5;
+  border-radius: 4px;
 }
 
 @media only screen and (max-width: 540px) {
@@ -82,26 +88,50 @@ body {
     max-width: 100%;
     margin: 1rem;
     padding: 1rem;
-    overflow-x: auto;
+    overflow-x: visible;
   }
   
-  /* Keep chart at 480px but allow horizontal scrolling if needed */
+  /* Scale chart with transform to maintain aspect ratio */
   .chart-container {
     width: 480px;
-    height: 380px;
+    height: 400px;
+    transform: scale(0.90);
+    transform-origin: center top;
+    margin: 1rem auto;
   }
   
   .chart-wrapper {
     width: 480px;
-    height: 380px;
+    height: 400px;
+    transform-origin: center top;
   }
   
   #dripChart {
-    width: 480px;
-    height: 380px;
+    width: 480px !important;
+    height: 400px !important;
   }
 }
 
+@media only screen and (max-width: 480px) {
+  .chart-container {
+    transform: scale(0.80);
+    transform-origin: center top;
+  }
+}
+
+@media only screen and (max-width: 420px) {
+  .chart-container {
+    transform: scale(0.70);
+    transform-origin: center top;
+  }
+}
+
+@media only screen and (max-width: 360px) {
+  .chart-container {
+    transform: scale(0.60);
+    transform-origin: center top;
+  }
+}
 
 /* Results rows */
 #dripResults {
@@ -127,18 +157,6 @@ body {
 
 .drip-detail-table tbody tr:nth-child(even) {
   background-color: #fafafa;   /* the "light green" you wanted */
-}
-
-/* Chart canvas */
-#dripChart {
-  width: 100%;
-  height: 100%;             /* cap its height */
-  margin-top: 1.5rem;
-  margin-bottom: -1.5rem;
-  display: block;
-  background: #FFFFFF;
-  border: 1px solid #E5E5E5;
-  border-radius: 4px;
 }
 
 .drip-table-wrapper {

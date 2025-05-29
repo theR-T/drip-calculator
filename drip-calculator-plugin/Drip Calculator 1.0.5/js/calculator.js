@@ -342,7 +342,7 @@
 
         const canvas = document.getElementById('dripChart');
         canvas.width = 480;
-        canvas.height = 380;
+        canvas.height = 400;
         
         Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
         Chart.defaults.color = getComputedStyle(document.body).color;
@@ -386,7 +386,7 @@
                             left: 5,
                             right: 10,
                             top: 5,
-                            bottom: 5
+                            bottom: 25
                         }
                     },
                     scales: {
@@ -545,7 +545,7 @@
         
         const SCALE = 2;
         const DEFAULT_WIDTH = 480;
-        const DEFAULT_HEIGHT = 380;
+        const DEFAULT_HEIGHT = 400;
 
         const srcCanvas = dripChart.canvas;
         const exportCanvas = document.createElement('canvas');

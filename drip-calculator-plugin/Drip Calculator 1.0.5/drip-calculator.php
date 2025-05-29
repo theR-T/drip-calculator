@@ -3,7 +3,7 @@
  * Plugin Name: DRIP Calculator
  * Plugin URI: https://morrisonfinancial.com
  * Description: A calculator for showing DRIP investment returns vs regular investment returns
- * Version: 1.1.8
+ * Version: 1.2.1
  * Author: Morrison Financial
  * Author URI: https://morrisonfinancial.com
  * License: GPL v2 or later
