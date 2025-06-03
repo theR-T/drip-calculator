@@ -5,14 +5,15 @@ body {
 
 /* DRIP Calculator Container */
 #drip-calculator {
-  max-width: 480px;
+  max-width: 510px;  /* 480px chart + 30px padding (15px each side) */
   margin: 2rem auto;
-  padding: 1.5rem;
+  padding: 15px;      /* Changed from 1.5rem to 15px */
   border: 1px solid #E5E5E5;      /* match the light grey borders on investors page */
-  border-radius: 5px;
+  border-radius: 4px;
   background: #FFFFFF;            /* solid white, like the page cards */
   font-family: Montserrat, inherit;           /* inherit the site's body font */
   color: inherit;                 /* inherit the site's body text color */
+  box-sizing: border-box;
 }
 
 /* Header */
@@ -60,118 +61,101 @@ body {
 
 .chart-container {
   width: 456px;
-  height: 380px;
   margin: 0 auto;
 
 }
 
 .chart-wrapper {
   position: relative;
-  /* fixed width and height for consistent size */
-  width: 456px;
-  height: 380px;
+  width: 480px;
+  height: 400px;
   margin: 0 auto; /* center the chart */
-  transform-origin: left top;
+  transform-origin: center top;
 }
 
 @media only screen and (max-width: 580px) {
   .chart-wrapper {
-    transform: scale(0.90);
+    transform: scale(0.95);
     margin: 0; /* Remove margin when scaled */
+    height: 380px; /* 400px * 0.95 */
   }
   .chart-container {
-    width: 432px; /* 480px * 0.90 */
-    height: 342px; /* 380px * 0.90 */
+    width: 456px; /* 480px * 0.95 */
+    margin-left: auto;
+    margin-right: auto;
+    transform-origin: center; /* Default for container if not scaled itself */
   }
-  
+
   #drip-calculator {
     max-width: 100%;
-    margin: 1rem auto;
+    margin: 1rem auto; /* Ensures #drip-calculator itself is centered */
     padding: 1rem;
-    border: 1px solid #E5E5E5;
-    background: #FFFFFF;
-    font-family: Montserrat, inherit;
-    color: inherit;
+    /* Removed display: flex, flex-direction: column, align-items: center */
+    /* The .chart-wrapper with margin:0 will now be left-aligned within this block */
+    /* or centered if #drip-calculator has text-align: center and .chart-wrapper is display: inline-block */
+    /* For true centering of a block element with margin:0, parent usually needs flex or text-align */
+    overflow-x: visible; /* Retained from original 540px media query */
   }
 }
 
 @media only screen and (max-width: 500px) {
   .chart-wrapper {
-    transform: scale(0.80);
+    transform: scale(0.85);
+    height: 340px; /* 400px * 0.85 */
+    /* margin: 0; (already set if cascading from 580px) or can be explicit */
   }
   .chart-container {
-    width: 384px; /* 480px * 0.80 */
-    height: 304px; /* 380px * 0.80 */
-  }
-}
-
-@media only screen and (max-width: 475px) {
-  .chart-wrapper {
-    transform: scale(0.75);
-  }
-  .chart-container {
-    width: 360px; /* 480px * 0.75 */
-    height: 285px; /* 380px * 0.75 */
+    width: 408px; /* 480px * 0.85 */
   }
 }
 
 @media only screen and (max-width: 450px) {
   .chart-wrapper {
-    transform: scale(0.70);
+    transform: scale(0.75);
+    height: 300px; /* 400px * 0.75 */
   }
   .chart-container {
-    width: 336px; /* 480px * 0.70 */
-    height: 266px; /* 380px * 0.70 */
-  }
-}
-
-@media only screen and (max-width: 425px) {
-  .chart-wrapper {
-    transform: scale(0.65);
-  }
-  .chart-container {
-    width: 312px; /* 480px * 0.65 */
-    height: 247px; /* 380px * 0.65 */
+    width: 360px; /* 480px * 0.75 */
   }
 }
 
 @media only screen and (max-width: 400px) {
   .chart-wrapper {
-    transform: scale(0.60);
+    transform: scale(0.70);
+    height: 280px; /* 400px * 0.70 */
   }
   .chart-container {
-    width: 288px; /* 480px * 0.60 */
-    height: 228px; /* 380px * 0.60 */
+    width: 336px; /* 480px * 0.70 */
   }
 }
 
 @media only screen and (max-width: 375px) {
   .chart-wrapper {
-    transform: scale(0.55);
+    transform: scale(0.65);
+    height: 260px; /* 400px * 0.65 */
   }
   .chart-container {
-    width: 264px; /* 480px * 0.55 */
-    height: 209px; /* 380px * 0.55 */
+    width: 312px; /* 480px * 0.65 */
   }
 }
 
 @media only screen and (max-width: 350px) {
   .chart-wrapper {
-    transform: scale(0.50);
+    transform: scale(0.60);
+    height: 240px; /* 400px * 0.60 */
   }
   .chart-container {
-    width: 240px; /* 480px * 0.50 */
-    height: 190px; /* 380px * 0.50 */
+    width: 288px; /* 480px * 0.60 */
   }
 }
 
 @media only screen and (max-width: 325px) {
   .chart-wrapper {
-    transform: scale(0.45);
+    transform: scale(0.55);
+    height: 220px; /* 400px * 0.55 */
   }
   .chart-container {
-    width: 216px; /* 480px * 0.45 */
-    height: 171px; /* 380px * 0.45 */
+    width: 264px; /* 480px * 0.55 */
   }
 }
 

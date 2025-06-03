@@ -7,7 +7,7 @@ body {
 #drip-calculator {
   max-width: 510px;  /* 480px chart + 30px padding (15px each side) */
   margin: 2rem auto;
-  padding: 1.5rem;
+  padding: 15px;      /* Changed from 1.5rem to 15px */
   border: 1px solid #E5E5E5;      /* match the light grey borders on investors page */
   border-radius: 5px;
   background: #FFFFFF;            /* solid white, like the page cards */
@@ -17,7 +17,7 @@ body {
 
 /* Header */
 #drip-calculator h2 {
-  margin: 0 0 1rem;
+  margin: 0 0 .5rem;
   font-size: 1.75rem;
   font-weight: 600;
   color: inherit;                 /* match the site's heading color */
@@ -81,6 +81,7 @@ body {
   background: #FFFFFF;
   border: 1px solid #E5E5E5;
   border-radius: 4px;
+  box-sizing: border-box;
 }
 
 @media only screen and (max-width: 540px) {
@@ -89,21 +90,35 @@ body {
     margin: 1rem;
     padding: 1rem;
     overflow-x: visible;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   
-  /* Scale chart with transform to maintain aspect ratio */
+  /* Ensure these elements take full width of the calculator */
+  #drip-calculator > h2,
+  #drip-calculator > label,
+  #drip-calculator > #dripResults,
+  #drip-calculator > .table-controls,
+  #drip-calculator > .drip-table-wrapper,
+  #drip-calculator > #dripActions {
+    width: 100%;
+    box-sizing: border-box; /* Ensures padding/border are included in the 100% width */
+  }
+  
   .chart-container {
-    width: 480px;
-    height: 400px;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    margin-left: 0;
+    margin-right: 0;
     transform: scale(0.90);
-    transform-origin: center top;
-    margin: 1rem auto;
+    transform-origin: center;
   }
   
   .chart-wrapper {
     width: 480px;
     height: 400px;
-    transform-origin: center top;
+    transform-origin: center;
   }
   
   #dripChart {
@@ -115,21 +130,21 @@ body {
 @media only screen and (max-width: 480px) {
   .chart-container {
     transform: scale(0.80);
-    transform-origin: center top;
+    transform-origin: center;
   }
 }
 
 @media only screen and (max-width: 420px) {
   .chart-container {
     transform: scale(0.70);
-    transform-origin: center top;
+    transform-origin: center;
   }
 }
 
 @media only screen and (max-width: 360px) {
   .chart-container {
     transform: scale(0.60);
-    transform-origin: center top;
+    transform-origin: center;
   }
 }
 
@@ -151,6 +166,10 @@ body {
   gap: .5rem;
 }
 
+.drip-detail-table {
+margin-top: .5rem;
+}
+
 .drip-detail-table tbody tr:nth-child(odd) {
   background-color: #e4e4e4;   /* every other line grey */
 }
@@ -160,17 +179,14 @@ body {
 }
 
 .drip-table-wrapper {
-  display: grid;                   /* so that justify-items / justify-self actually work */
-  container-type: inline-size;     /* turn it into a container you can query */
+  display: grid;
+  container-type: inline-size;
   container-name: table-wrapper;
-  justify-items: center;           /* default: center the table */
+  justify-items: center;
+  width: 100%;  /* ensure wrapper takes full width */
   overflow-x: auto;
-  /* enable smooth touch-scroll on iOS */
   -webkit-overflow-scrolling: touch;
-  
-  /* hide scrollbar in Firefox */
   scrollbar-width: none;
-  /* hide scrollbar in IE10+ */
   -ms-overflow-style: none;
 }
 
@@ -181,28 +197,43 @@ body {
 
 
 @container drip-table-wrapper (max-width: 480px) {
+  #drip-calculator {
+    padding: 0;
+  }
   .drip-detail-table {
     justify-self: start;   /* align the table left when ≤480px to fit huge numbers if needed */
   }
 }
 
 /* target the first column ("Month") and give it a narrow width */
-.drip-detail-table th:first-child,
 .drip-detail-table td:first-child {
   width: 0;              /* about 4 characters wide; tweak as needed */
-  /* keep this one left-aligned so your "Month" headers still read naturally */
   text-align: center;
   padding: 0;     /* optional padding so it doesn't hug the edge */
+  min-width: 30px;  /* minimum width for year column */
 }
 .drip-detail-table td {
-  padding: 0 .25rem;
+  padding: 0 .125rem;  /* minimum padding */
   font-size: 12px;
-  width: 0;
+  width: auto;  /* changed from 0 to auto to allow expansion */
   text-align: center;
+  line-height: 1.2;
+  vertical-align: middle;
+}
+.drip-detail-table th {
+  padding: 0.125rem 0.25rem !important;  /* minimum padding */
+  width: auto;  /* allow headers to expand */
+  text-align: center;
+  vertical-align: middle;
+  height: 2em;  /* maintain consistent height */
 }
 .drip-detail-table th,
 .drip-detail-table td {
   white-space: nowrap;
   font-size: 12px;
-  min-width: 50px;
+  min-width: 50px;  /* minimum width */
+  flex: 1;  /* allow equal expansion */
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+  justify-content: center;
 } 
