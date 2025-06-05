@@ -342,7 +342,7 @@
 
         const canvas = document.getElementById('dripChart');
         canvas.width = 480;
-        canvas.height = 400;
+        canvas.height = 380;
         
         Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
         Chart.defaults.color = getComputedStyle(document.body).color;
@@ -357,7 +357,7 @@
                     labels: yearLabels.map(y => `Year ${y}`),
                     datasets: [
                         {
-                            label: 'Total Value (With DRIP)',
+                            label: 'Total Value (With DRIP):',
                             data: yearlyDripTotal,
                             borderColor: '#006644',
                             pointBackgroundColor: '#006644',
@@ -480,20 +480,63 @@
             container.appendChild(bubble);
             span.appendChild(container);
             
-            container.addEventListener('mousemove', e => {
-                const iconRect = container.getBoundingClientRect();
-                const bubbleW = bubble.offsetWidth;
-                const bubbleH = bubble.offsetHeight;
+            const positionTooltip = () => {
+                const originalTransition = bubble.style.transition;
+                bubble.style.transition = 'none';
+                bubble.style.visibility = 'hidden'; 
+                bubble.style.display = 'block'; 
+
+                const iconRect = iconEl.getBoundingClientRect();
+                let bubbleW = bubble.offsetWidth;
+                let bubbleH = bubble.offsetHeight;
+
+                bubble.style.display = ''; 
+                bubble.style.visibility = ''; 
+
+                if (bubbleW === 0 || bubbleH === 0) {
+                    console.warn("Tooltip dimensions initially zero. W:", bubbleW, "H:", bubbleH, ". Text:", bubble.textContent.substring(0,10));
+                }
                 
-                const left = iconRect.left + iconRect.width/2 - bubbleW/2;
-                const top = iconRect.top - bubbleH - 8;
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                const scrollY = window.scrollY; 
+
+                let idealLeft = iconRect.left + (iconRect.width / 2) - (bubbleW / 2);
+                let idealTop = iconRect.top + scrollY - bubbleH - 8;
+
+                if (idealLeft < 5) {
+                    idealLeft = 5;
+                } else if (idealLeft + bubbleW > viewportWidth - 5) {
+                    idealLeft = viewportWidth - bubbleW - 5;
+                }
+
+                let arrowPointsDown = true; 
+                if ((idealTop - scrollY) < 5) { 
+                    idealTop = iconRect.bottom + scrollY + 8; 
+                    arrowPointsDown = false; 
+                    if ((idealTop + bubbleH - scrollY) > (viewportHeight - 5)) {
+                        idealTop = scrollY + 5;
+                        arrowPointsDown = true; 
+                    }
+                }
                 
-                bubble.style.left = `${left}px`;
-                bubble.style.top = `${top}px`;
+                bubble.style.left = `${idealLeft}px`;
+                bubble.style.top = `${idealTop}px`;
                 
-                const arrowX = iconRect.left + iconRect.width/2 - left;
+                const iconCenterX = iconRect.left + iconRect.width / 2;
+                const arrowX = iconCenterX - idealLeft; 
                 bubble.style.setProperty('--arrow-left', `${arrowX}px`);
-            });
+
+                if (arrowPointsDown) {
+                    bubble.classList.remove('points-up');
+                } else {
+                    bubble.classList.add('points-up');
+                }
+                
+                bubble.style.transition = originalTransition;
+            };
+            
+            container.addEventListener('mouseenter', positionTooltip);
         });
     }
 
@@ -520,7 +563,7 @@
             
             csv += [
                 m,
-                contribThisMonthArr[i].toFixed(2),
+                (i === 0 ? initialPrincipal : contribThisMonthArr[i]).toFixed(2),
                 regReturnArr[i].toFixed(2),
                 dripReturnArr[i].toFixed(2),
                 regularValue.toFixed(2),
@@ -545,7 +588,7 @@
         
         const SCALE = 2;
         const DEFAULT_WIDTH = 480;
-        const DEFAULT_HEIGHT = 400;
+        const DEFAULT_HEIGHT = 370;
 
         const srcCanvas = dripChart.canvas;
         const exportCanvas = document.createElement('canvas');
@@ -592,7 +635,7 @@
             
             csv += [
                 m,
-                contribThisMonthArr[i].toFixed(2),
+                (i === 0 ? initialPrincipal : contribThisMonthArr[i]).toFixed(2),
                 regReturnArr[i].toFixed(2),
                 dripReturnArr[i].toFixed(2),
                 regularValue.toFixed(2),

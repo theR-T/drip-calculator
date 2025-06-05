@@ -60,21 +60,22 @@ body {
 
 .chart-container {
   width: 480px;
-  height: 400px;
-  margin: 1rem auto;
+  height: 380px;
+  margin: 0;
   overflow: hidden;
 }
 
 .chart-wrapper {
   position: relative;
   width: 480px;
-  height: 400px;
+  height: 380px;
   margin: 0 auto;
+  transform-origin: center top;
 }
 
 #dripChart {
   width: 480px !important;
-  height: 400px !important;
+  height: 380px !important;
   margin-top: 1.5rem;
   margin-bottom: -1.5rem;
   display: block;
@@ -84,7 +85,7 @@ body {
   box-sizing: border-box;
 }
 
-@media only screen and (max-width: 540px) {
+@media only screen and (max-width: 580px) {
   #drip-calculator {
     max-width: 100%;
     margin: 1rem;
@@ -111,40 +112,61 @@ body {
     margin-bottom: 1rem;
     margin-left: 0;
     margin-right: 0;
-    transform: scale(0.90);
+    transform: scale(0.95);
     transform-origin: center;
   }
   
   .chart-wrapper {
-    width: 480px;
-    height: 400px;
-    transform-origin: center;
+    transform: scale(0.95);
+    margin: 0;
+    height: 361px;
   }
   
   #dripChart {
     width: 480px !important;
-    height: 400px !important;
+    height: 380px !important;
   }
 }
 
-@media only screen and (max-width: 480px) {
-  .chart-container {
-    transform: scale(0.80);
-    transform-origin: center;
+@media only screen and (max-width: 500px) {
+  .chart-wrapper {
+    transform: scale(0.85);
+    height: 323px;
   }
 }
 
-@media only screen and (max-width: 420px) {
-  .chart-container {
+@media only screen and (max-width: 450px) {
+  .chart-wrapper {
+    transform: scale(0.75);
+    height: 285px;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  .chart-wrapper {
     transform: scale(0.70);
-    transform-origin: center;
+    height: 266px;
   }
 }
 
-@media only screen and (max-width: 360px) {
-  .chart-container {
+@media only screen and (max-width: 375px) {
+  .chart-wrapper {
+    transform: scale(0.65);
+    height: 247px;
+  }
+}
+
+@media only screen and (max-width: 350px) {
+  .chart-wrapper {
     transform: scale(0.60);
-    transform-origin: center;
+    height: 228px;
+  }
+}
+
+@media only screen and (max-width: 325px) {
+  .chart-wrapper {
+    transform: scale(0.55);
+    height: 209px;
   }
 }
 
