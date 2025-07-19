@@ -1,0 +1,358 @@
+body {
+  font-family: var(--e-global-typography-primary-font-family, Montserrat);
+}
+
+/* Calculator Layout & Spacing Best Practices */
+:root {
+    --space-xs: 0.5rem;  /* 8px */
+    --space-s: 1rem;     /* 16px */
+    --space-m: 1.5rem;   /* 24px */
+    --space-l: 2rem;     /* 32px */
+}
+
+/* DRIP Calculator Container */
+#drip-calculator {
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border: 1px solid var(--e-global-color-fbbe184);      /* match the light grey borders on investors page */
+  font-family: var(--e-global-typography-primary-font-family, Montserrat), inherit;           /* inherit the site's body font */
+  color: var(--e-global-color-text, inherit);                 /* inherit the site's body text color */
+}
+
+/* Header */
+#drip-calculator h2 {
+  margin: 0 0 1rem;
+  font-size: var(--e-global-typography-secondary-font-size, 1.75rem);
+  font-weight: var(--e-global-typography-secondary-font-weight, 600);
+  font-family: var(--e-global-typography-secondary-font-family, Montserrat);
+  color: var(--e-global-color-secondary, inherit);                 /* match the site's heading color */
+}
+
+/* Labels & Inputs */
+#drip-calculator label {
+  display: block;
+  margin: 0.75rem 0 0.25rem;
+  font-weight: var(--e-global-typography-accent-font-weight, 500);
+  font-family: var(--e-global-typography-accent-font-family, Montserrat);
+  font-size: var(--e-global-typography-accent-font-size, 14px);
+  color: var(--e-global-color-text, inherit);
+}
+#drip-calculator input {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: var(--e-global-typography-text-font-size, 1rem);
+  border: none;     /* Removed black border */
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-family: var(--e-global-typography-text-font-family, Montserrat);
+  color: #000000;
+}
+
+.chart-container {
+  width: 480px;
+  height: 380px;
+  margin: 0 auto;
+
+}
+
+.chart-wrapper {
+  position: relative;
+  /* fixed width and height for consistent size */
+  width: 480px;
+  height: 380px;
+  margin: 0 auto; /* center the chart */
+  transform-origin: left top;
+}
+
+@media only screen and (max-width: 580px) {
+  .chart-wrapper {
+    transform: scale(0.90);
+    margin: 0; /* Remove margin when scaled */
+  }
+  .chart-container {
+    width: 432px; /* 480px * 0.90 */
+    height: 342px; /* 380px * 0.90 */
+  }
+  
+  #drip-calculator {
+    margin: 1rem auto;
+    padding: 1rem;
+    border: 1px solid var(--e-global-color-fbbe184, #E5E5E5);
+    font-family: var(--e-global-typography-primary-font-family, Montserrat), inherit;
+    color: var(--e-global-color-text, inherit);
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .chart-wrapper {
+    transform: scale(0.80);
+  }
+  .chart-container {
+    width: 384px; /* 480px * 0.80 */
+    height: 304px; /* 380px * 0.80 */
+  }
+}
+
+@media only screen and (max-width: 475px) {
+  .chart-wrapper {
+    transform: scale(0.75);
+  }
+  .chart-container {
+    width: 360px; /* 480px * 0.75 */
+    height: 285px; /* 380px * 0.75 */
+  }
+}
+
+@media only screen and (max-width: 450px) {
+  .chart-wrapper {
+    transform: scale(0.70);
+  }
+  .chart-container {
+    width: 336px; /* 480px * 0.70 */
+    height: 266px; /* 380px * 0.70 */
+  }
+}
+
+@media only screen and (max-width: 425px) {
+  .chart-wrapper {
+    transform: scale(0.65);
+  }
+  .chart-container {
+    width: 312px; /* 480px * 0.65 */
+    height: 247px; /* 380px * 0.65 */
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  .chart-wrapper {
+    transform: scale(0.60);
+  }
+  .chart-container {
+    width: 288px; /* 480px * 0.60 */
+    height: 228px; /* 380px * 0.60 */
+  }
+}
+
+@media only screen and (max-width: 375px) {
+  .chart-wrapper {
+    transform: scale(0.55);
+  }
+  .chart-container {
+    width: 264px; /* 480px * 0.55 */
+    height: 209px; /* 380px * 0.55 */
+  }
+}
+
+@media only screen and (max-width: 350px) {
+  .chart-wrapper {
+    transform: scale(0.50);
+  }
+  .chart-container {
+    width: 240px; /* 480px * 0.50 */
+    height: 190px; /* 380px * 0.50 */
+  }
+}
+
+@media only screen and (max-width: 325px) {
+  .chart-wrapper {
+    transform: scale(0.45);
+  }
+  .chart-container {
+    width: 216px; /* 480px * 0.45 */
+    height: 171px; /* 380px * 0.45 */
+  }
+}
+
+
+/* Results rows */
+#dripResults {
+  margin-top: 1.5rem;
+  line-height: 1.5;
+  font-family: inherit;
+}
+#dripResults .result-row {  
+  display: block;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #EEE;
+}
+.result-row .result-label {
+    margin-right: 0.5em;
+}
+.result-row .result-value {
+    font-weight: 600;
+}
+.result-row .tooltip-placeholder {
+    display: inline-flex;
+    vertical-align: middle;
+    margin-left: 0.25em;
+}
+.result-row span {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.drip-detail-table tbody tr:nth-child(odd) {
+  background-color: var(--e-global-color-fbbe184);   /* every other line grey */
+}
+
+.drip-detail-table tbody tr:nth-child(even) {
+  background-color: var(--e-global-color-accent);   /* the "light green" you wanted */
+}
+
+/* Chart canvas */
+#dripChart {
+  width: 100%;
+  height: 100%;             /* cap its height */
+  margin-top: 1.5rem;
+  margin-bottom: -1.5rem;
+  display: block;
+  border: 1px solid var(--e-global-color-fbbe184, #E5E5E5);
+  border-radius: 4px;
+}
+
+.drip-table-wrapper {
+  display: grid;                   /* so that justify-items / justify-self actually work */
+  container-type: inline-size;     /* turn it into a container you can query */
+  container-name: table-wrapper;
+  justify-items: center;           /* default: center the table */
+  overflow-x: auto;
+  /* enable smooth touch-scroll on iOS */
+  -webkit-overflow-scrolling: touch;
+  
+  /* hide scrollbar in Firefox */
+  scrollbar-width: none;
+  /* hide scrollbar in IE10+ */
+  -ms-overflow-style: none;
+}
+
+/* Remove all borders from table container and its children */
+.mf-dripTableContainer,
+.mf-dripTableContainer table,
+.mf-dripTableContainer th,
+.mf-dripTableContainer td {
+  border: none !important;
+}
+
+/* hide scrollbar in WebKit browsers */
+.drip-table-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+
+@container drip-table-wrapper (max-width: 480px) {
+  .drip-detail-table {
+    justify-self: start;   /* align the table left when ≤480px to fit huge numbers if needed */
+  }
+}
+
+/* target the first column ("Month") and give it a narrow width */
+.drip-detail-table th:first-child,
+.drip-detail-table td:first-child {
+  width: 0;
+  text-align: center;
+  padding: 4px 0; /* Reduced vertical padding, no horizontal padding */
+}
+.drip-detail-table td {
+  padding: 0 .125rem; /* Removed vertical padding */
+  font-size: 12px;
+  width: 0;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 1
+}
+.drip-detail-table th {
+    padding: 4px 5px; /* Reduced vertical, 5px horizontal */
+    text-align: center;
+    vertical-align: middle;
+    font-weight: 600;
+}
+.drip-detail-table th,
+.drip-detail-table td {
+  white-space: nowrap;
+  font-size: 12px;
+  min-width: 50px;
+}
+
+/* 1. Override and Constrain Width */
+body .drip-calculator-container {
+    width: 100%;
+    max-width: 565px;
+    margin: 0 auto;
+    box-sizing: border-box; 
+}
+
+/* 2. Form Element Spacing */
+.drip-calculator-container label {
+    display: block;
+    margin-bottom: var(--space-xs);
+    font-weight: var(--e-global-typography-accent-font-weight, 500);
+    font-family: var(--e-global-typography-accent-font-family, Montserrat);
+    font-size: var(--e-global-typography-accent-font-size, 14px);
+    color: var(--e-global-color-text, inherit);
+}
+
+.drip-calculator-container input,
+.drip-calculator-container select {
+    width: 100%;
+    padding: var(--space-xs) var(--space-s);
+    margin-bottom: var(--space-s);
+    box-sizing: border-box;
+    border: none; /* Removed black border */
+    border-radius: 4px;
+    font-family: var(--e-global-typography-text-font-family, Montserrat);
+    font-size: var(--e-global-typography-text-font-size, 16px);
+    color: #000000;
+}
+
+/* 3. Button Padding & Margins */
+.drip-calculator-container button {
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-weight: 600;
+    /* Applying the horizontal padding rule */
+    padding: var(--space-xs) var(--space-m);
+    transition: all 0.2s ease-in-out;
+}
+
+.drip-calculator-container .mf-calculateDrip, .drip-calculator-container .mf-toggleView, .btn-green {
+    margin-bottom: var(--space-m);
+    background-color: var(--e-global-color-primary, #285026);
+    color: var(--e-global-color-163165d, white);
+    transition: all 0.2s ease-in-out;
+}
+
+.drip-calculator-container .mf-calculateDrip {
+  width: 100%;
+}
+
+.drip-calculator-container .mf-calculateDrip:hover,
+.drip-calculator-container .mf-calculateDrip:active,
+.drip-calculator-container .mf-toggleView:hover,
+.drip-calculator-container .mf-toggleView:active,
+.btn-green:hover,
+.btn-green:active {
+    background-color: var(--e-global-color-163165d, white);
+    color: var(--e-global-color-primary, #285026);
+    border: 1px solid var(--e-global-color-primary, #285026);
+}
+
+/* 4. Section & Group Spacing */
+.drip-calculator-container .mf-dripResults,
+.drip-calculator-container .chart-container,
+.drip-calculator-container .table-controls,
+.drip-calculator-container .drip-table-wrapper {
+    margin-bottom: var(--space-m);
+}
+
+.drip-calculator-container .table-controls {
+    text-align: center;
+}
+
+.drip-calculator-container .dripActions {
+    margin-top: var(--space-l);
+    display: flex;
+    justify-content: center;
+    gap: var(--space-s);
+    flex-wrap: wrap;
+}
