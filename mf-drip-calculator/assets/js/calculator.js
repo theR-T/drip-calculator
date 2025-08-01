@@ -22,7 +22,6 @@ function initializeDripCalculator(containerId, imageUrl) {
     const dripTableContainerEl = container.querySelector('.mf-dripTableContainer');
     const downloadCsvButton = container.querySelector('.mf-downloadCsv');
     const downloadChartButton = container.querySelector('.mf-downloadChart');
-    const emailDataButton = container.querySelector('.mf-emailData');
     const chartWrapper = container.querySelector('.chart-wrapper');
 
     const tooltipDescriptions = {
@@ -294,37 +293,54 @@ function initializeDripCalculator(containerId, imageUrl) {
             yearlyNonDripTotal.push(totalInvestedToDate + totalNonDripReturnArr[idx]);
         });
 
-        if (dripChart) dripChart.destroy();
         if (!canvas) return;
-        canvas.width = 480;
-        canvas.height = 380;
-        Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
-        Chart.defaults.color = getComputedStyle(document.body).color;
-        Chart.defaults.devicePixelRatio = 2;
-        const ctx = canvas.getContext('2d');
-        dripChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: yearLabelsForChart.map(y => `Year ${y}`),
-                datasets: [
-                    { label: 'Total Value (With DRIP)', data: yearlyDripTotal, borderColor: '#006644', pointBackgroundColor: '#006644', pointBorderColor: '#ffffff', pointRadius: 4, tension: 0.3, fill: false },
-                    { label: 'Total Value (no DRIP)', data: yearlyNonDripTotal, borderColor: '#004C84', pointBackgroundColor: '#004C84', pointBorderColor: '#ffffff', pointRadius: 4, tension: 0.3, fill: false }
-                ]
-            },
-            options: {
-                responsive: false, maintainAspectRatio: false,
-                layout: { padding: { left: 5, right: 10, top: 5, bottom: 5 } },
-                scales: {
-                    x: { type: 'category', title: { display: true, text: 'Number of years invested' } },
-                    y: { title: { display: true, text: 'Total Investment Value ($)' }, ticks: { callback: value => Math.round(value).toLocaleString() } }
+        
+        // Initialize chart if it doesn't exist
+        if (!dripChart) {
+            // Get chart dimensions from CSS variables
+            const chartWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--chart-width')) || 480;
+            const chartHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--chart-height')) || 380;
+            
+            canvas.width = chartWidth;
+            canvas.height = chartHeight;
+            Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+            Chart.defaults.color = getComputedStyle(document.body).color;
+            Chart.defaults.devicePixelRatio = 2;
+            const ctx = canvas.getContext('2d');
+            // Get chart colors from CSS variables
+            const dripColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-drip-color').trim() || '#006644';
+            const nonDripColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-non-drip-color').trim() || '#004C84';
+            
+            dripChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: 'Total Value (With DRIP)', data: [], borderColor: dripColor, pointBackgroundColor: dripColor, pointBorderColor: '#ffffff', pointRadius: 4, tension: 0.3, fill: false },
+                        { label: 'Total Value (no DRIP)', data: [], borderColor: nonDripColor, pointBackgroundColor: nonDripColor, pointBorderColor: '#ffffff', pointRadius: 4, tension: 0.3, fill: false }
+                    ]
                 },
-                plugins: {
-                    tooltip: { callbacks: { label: function (context) { return `${context.dataset.label}: $${Math.round(context.parsed.y).toLocaleString()}`; } } },
-                    title: { display: true, text: 'Total Investment Value Over Time (Regular VS DRIP)', padding: { top: 10 }, font: { size: 16, weight: '500' } },
-                    legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, boxHeight: 8, padding: 16 } }
+                options: {
+                    responsive: false, maintainAspectRatio: false,
+                    layout: { padding: { left: 5, right: 10, top: 5, bottom: 5 } },
+                    scales: {
+                        x: { type: 'category', title: { display: true, text: 'Number of years invested' } },
+                        y: { title: { display: true, text: 'Total Investment Value ($)' }, ticks: { callback: value => Math.round(value).toLocaleString() } }
+                    },
+                    plugins: {
+                        tooltip: { callbacks: { label: function (context) { return `${context.dataset.label}: $${Math.round(context.parsed.y).toLocaleString()}`; } } },
+                        title: { display: true, text: 'Total Investment Value Over Time (Regular VS DRIP)', padding: { top: 10 }, font: { size: 16, weight: '500' } },
+                        legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, boxHeight: 8, padding: 16 } }
+                    }
                 }
-            }
-        });
+            });
+        }
+        
+        // Update chart data instead of recreating
+        dripChart.data.labels = yearLabelsForChart.map(y => `Year ${y}`);
+        dripChart.data.datasets[0].data = yearlyDripTotal;
+        dripChart.data.datasets[1].data = yearlyNonDripTotal;
+        dripChart.update('active');
     }
 
     if (calculateButton) calculateButton.addEventListener('click', calculateAndDisplay);
@@ -336,24 +352,40 @@ function initializeDripCalculator(containerId, imageUrl) {
         });
     }
 
-    if (downloadCsvButton) {
-        downloadCsvButton.addEventListener('click', () => {
-            if (!dripData) return alert('Run calc first');
-            const { labels, regReturnArr, dripReturnArr, totalNonDripReturnArr, totalDripReturnArr, contribThisMonthArr, initialPrincipal } = dripData;
-            let csv = 'DRIP Investment Calculator Results\nInput Parameters:\n';
-            csv += `Initial Investment,$${parseFloat(initialInvestmentEl.value.replace(/,/g, '')).toFixed(2)}\n`;
-            csv += `Annualized Distribution Yield,${parseFloat(annualRateEl.value).toFixed(2)}%\n`;
-            csv += `Time Horizon,${parseInt(yearsEl.value)} years\n`;
-            csv += `Additional Contribution Amount,$${parseFloat(contributionAmountEl.value.replace(/,/g, '')).toFixed(2)}\n`;
-            csv += `Contribution Frequency,${parseInt(contributionFrequencyEl.value)} months\n\n`;
-            csv += 'Month,Contribution,Return (No DRIP),Return (With DRIP),Total Value (No DRIP),Total Value (With DRIP)\n';
-            labels.forEach((m, i) => {
+    // Shared function to generate data export content
+    function generateExportData() {
+        if (!dripData) return null;
+        const { labels, regReturnArr, dripReturnArr, totalNonDripReturnArr, totalDripReturnArr, contribThisMonthArr, initialPrincipal } = dripData;
+        
+        let content = 'DRIP Investment Calculator Results\nInput Parameters:\n';
+        content += `Initial Investment,$${parseFloat(initialInvestmentEl.value.replace(/,/g, '')).toFixed(2)}\n`;
+        content += `Annualized Distribution Yield,${parseFloat(annualRateEl.value).toFixed(2)}%\n`;
+        content += `Time Horizon,${parseInt(yearsEl.value)} years\n`;
+        content += `Additional Contribution Amount,$${parseFloat(contributionAmountEl.value.replace(/,/g, '')).toFixed(2)}\n`;
+        content += `Contribution Frequency,${parseInt(contributionFrequencyEl.value)} months\n\n`;
+        
+        return {
+            header: content,
+            rows: labels.map((m, i) => {
                 const contribution = i === 0 ? initialPrincipal : contribThisMonthArr[i];
                 const totalInvestedToDate = initialPrincipal + contribThisMonthArr.slice(0, i + 1).reduce((sum, val) => sum + val, 0);
                 const regularValue = totalInvestedToDate + totalNonDripReturnArr[i];
                 const dripValue = totalInvestedToDate + totalDripReturnArr[i];
-                csv += [m, contribution.toFixed(2), regReturnArr[i].toFixed(2), dripReturnArr[i].toFixed(2), regularValue.toFixed(2), dripValue.toFixed(2)].join(',') + '\n';
+                return { m, contribution, regReturn: regReturnArr[i], dripReturn: dripReturnArr[i], regularValue, dripValue };
+            })
+        };
+    }
+
+    if (downloadCsvButton) {
+        downloadCsvButton.addEventListener('click', () => {
+            const exportData = generateExportData();
+            if (!exportData) return alert('Run calc first');
+            
+            let csv = exportData.header + 'Month,Contribution,Return (No DRIP),Return (With DRIP),Total Value (No DRIP),Total Value (With DRIP)\n';
+            exportData.rows.forEach(row => {
+                csv += [row.m, row.contribution.toFixed(2), row.regReturn.toFixed(2), row.dripReturn.toFixed(2), row.regularValue.toFixed(2), row.dripValue.toFixed(2)].join(',') + '\n';
             });
+            
             const blob = new Blob([csv], { type: 'text/csv' }), url = URL.createObjectURL(blob);
             const a = document.createElement('a'); a.href = url; a.download = 'drip_returns.csv'; a.click();
             URL.revokeObjectURL(url);
@@ -381,26 +413,7 @@ function initializeDripCalculator(containerId, imageUrl) {
         });
     }
 
-    if (emailDataButton) {
-        emailDataButton.addEventListener('click', () => {
-            if (!dripData) return alert('Run calc first');
-            const { labels, regReturnArr, dripReturnArr, totalNonDripReturnArr, totalDripReturnArr, contribThisMonthArr, initialPrincipal } = dripData;
-            let body = 'DRIP Investment Calculator Results\nInput Parameters:\n';
-            body += `Initial Investment,$${parseFloat(initialInvestmentEl.value.replace(/,/g, '')).toFixed(2)}\n`;
-            body += `Annualized Distribution Yield,${parseFloat(annualRateEl.value).toFixed(2)}%\n`;
-            body += `Time Horizon,${parseInt(yearsEl.value)} years\n`;
-            body += `Additional Contribution Amount,$${parseFloat(contributionAmountEl.value.replace(/,/g, '')).toFixed(2)}\n`;
-            body += `Contribution Frequency,${parseInt(contributionFrequencyEl.value)} months\n\n`;
-            body += 'Month,Contribution,Regular Return,DRIP Return,Total Value (No DRIP),Total Value (With DRIP)\n';
-            labels.forEach((m, i) => {
-                const totalInvestedToDate = initialPrincipal + contribThisMonthArr.slice(0, i + 1).reduce((sum, val) => sum + val, 0);
-                const regularValue = totalInvestedToDate + totalNonDripReturnArr[i];
-                const dripValue = totalInvestedToDate + totalDripReturnArr[i];
-                body += [m, contribThisMonthArr[i].toFixed(2), regReturnArr[i].toFixed(2), dripReturnArr[i].toFixed(2), regularValue.toFixed(2), dripValue.toFixed(2)].join(',') + '\n';
-            });
-            window.location.href = `mailto:?subject=${encodeURIComponent('DRIP Returns Data')}&body=${encodeURIComponent(body)}`;
-        });
-    }
+
 
     if (chartWrapper) {
         const resizeObserver = new ResizeObserver(() => { if (dripChart) dripChart.resize(); });

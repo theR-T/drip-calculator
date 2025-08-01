@@ -23,39 +23,10 @@
     user-select: none;
   }
   
-  /* now fixed to the viewport */
+  /* Tooltip bubble styling */
   .tooltip-bubble {
     position: fixed;
-    min-width: 200px;
-    max-width: 95vw;
-    padding: 0.5rem;
-    background: #252525;
-    color: #eee;
-    border-radius: 5px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    line-height: 1.2;
-    word-wrap: break-word;
-    box-sizing: border-box;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.1s ease;
-    z-index: 1000;
-    white-space: pre-line;
-
-    /* arrow offset from JS via --arrow-left */
-    --arrow-left: 50%;       /* fallback center */
-  }
-  
-  .tooltip-container:hover .tooltip-bubble {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .tooltip-bubble {
-    position: fixed;
-    /* remove the old min-width:200px; */
-    max-width: 100px;        /* never wider than 100px */
+    max-width: 100px;
     padding: 0.5rem;
     background: #252525;
     color: #eee;
@@ -68,6 +39,15 @@
     pointer-events: none;
     transition: opacity 0.2s ease;
     z-index: 1000;
+    white-space: pre-line;
+
+    /* arrow offset from JS via --arrow-left */
+    --arrow-left: 50%;       /* fallback center */
+  }
+  
+  .tooltip-container:hover .tooltip-bubble {
+    opacity: 1;
+    pointer-events: auto;
   }
   
   /* <-- this is your "speech bubble" arrow */

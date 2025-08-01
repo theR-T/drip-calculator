@@ -8,19 +8,31 @@ body {
     --space-s: 1rem;     /* 16px */
     --space-m: 1.5rem;   /* 24px */
     --space-l: 2rem;     /* 32px */
+    
+    /* Chart dimensions */
+    --chart-width: 460px;
+    --chart-height: 360px;
+    
+    /* Chart colors */
+    --chart-drip-color: #006644;
+    --chart-non-drip-color: #004C84;
+    
+    /* Input colors */
+--input-text-color: var(--e-global-color-text);
+--border-light: var(--e-global-color-secondary);
 }
 
 /* DRIP Calculator Container */
-#drip-calculator {
+.drip-calculator-container {
   margin: 2rem auto;
-  padding: 1.5rem;
-  border: 1px solid var(--e-global-color-fbbe184);      /* match the light grey borders on investors page */
+  padding: 0;
+  border: 1px solid var(--e-global-color-secondary);      /* use dark grey for borders */
   font-family: var(--e-global-typography-primary-font-family, Montserrat), inherit;           /* inherit the site's body font */
-  color: var(--e-global-color-text, inherit);                 /* inherit the site's body text color */
+  color: var(--e-global-color-secondary);                 /* use dark grey for all text */
 }
 
 /* Header */
-#drip-calculator h2 {
+.drip-calculator-container h2 {
   margin: 0 0 1rem;
   font-size: var(--e-global-typography-secondary-font-size, 1.75rem);
   font-weight: var(--e-global-typography-secondary-font-weight, 600);
@@ -29,151 +41,157 @@ body {
 }
 
 /* Labels & Inputs */
-#drip-calculator label {
+.drip-calculator-container label {
   display: block;
   margin: 0.75rem 0 0.25rem;
   font-weight: var(--e-global-typography-accent-font-weight, 500);
   font-family: var(--e-global-typography-accent-font-family, Montserrat);
   font-size: var(--e-global-typography-accent-font-size, 14px);
-  color: var(--e-global-color-text, inherit);
+  color: var(--e-global-color-secondary);
 }
-#drip-calculator input {
+.drip-calculator-container input {
   width: 100%;
   padding: 0.5rem;
   font-size: var(--e-global-typography-text-font-size, 1rem);
-  border: none;     /* Removed black border */
+  border: 1px solid var(--e-global-color-secondary);     /* add dark grey border */
   border-radius: 4px;
   box-sizing: border-box;
   font-family: var(--e-global-typography-text-font-family, Montserrat);
-  color: #000000;
+  color: var(--e-global-color-secondary);
 }
 
 .chart-container {
-  width: 480px;
-  height: 380px;
+  width: var(--chart-width);
+  height: var(--chart-height);
   margin: 0 auto;
-
 }
 
 .chart-wrapper {
   position: relative;
   /* fixed width and height for consistent size */
-  width: 480px;
-  height: 380px;
+  width: var(--chart-width);
+  height: var(--chart-height);
   margin: 0 auto; /* center the chart */
   transform-origin: left top;
 }
 
-@media only screen and (max-width: 580px) {
+/* Responsive chart scaling with dynamic sizing */
+@media only screen and (max-width: 520px) {
   .chart-wrapper {
-    transform: scale(0.90);
-    margin: 0; /* Remove margin when scaled */
-  }
-  .chart-container {
-    width: 432px; /* 480px * 0.90 */
-    height: 342px; /* 380px * 0.90 */
+    transform: scale(clamp(0.4, calc(0.25 + 100vw * 0.001), 0.85));
+    margin: 0;
+    transform-origin: center top;
   }
   
-  #drip-calculator {
+  .chart-container {
+    width: calc(var(--chart-width) * clamp(0.4, calc(0.25 + 100vw * 0.001), 0.85));
+    height: calc(var(--chart-height) * clamp(0.4, calc(0.25 + 100vw * 0.001), 0.85));
+  }
+  
+  .drip-calculator-container {
     margin: 1rem auto;
-    padding: 1rem;
-    border: 1px solid var(--e-global-color-fbbe184, #E5E5E5);
+    padding: 0;
+    border: 1px solid var(--e-global-color-secondary);
     font-family: var(--e-global-typography-primary-font-family, Montserrat), inherit;
-    color: var(--e-global-color-text, inherit);
+    color: var(--e-global-color-secondary);
   }
 }
 
+/* Responsive sizing for smaller calculator containers */
 @media only screen and (max-width: 500px) {
-  .chart-wrapper {
-    transform: scale(0.80);
+  .drip-calculator-container h2 {
+    font-size: 1.5rem;
   }
+  
+  .drip-calculator-container label {
+    font-size: 13px;
+  }
+  
+  .drip-calculator-container input,
+  .drip-calculator-container select {
+    font-size: 14px;
+  }
+  
+  .drip-calculator-container .mf-dripResults {
+    font-size: 14px;
+  }
+  
   .chart-container {
-    width: 384px; /* 480px * 0.80 */
-    height: 304px; /* 380px * 0.80 */
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    aspect-ratio: 460/360;
   }
-}
-
-@media only screen and (max-width: 475px) {
+  
   .chart-wrapper {
-    transform: scale(0.75);
+    width: 100%;
+    height: 100%;
+    transform: none;
   }
-  .chart-container {
-    width: 360px; /* 480px * 0.75 */
-    height: 285px; /* 380px * 0.75 */
-  }
-}
-
-@media only screen and (max-width: 450px) {
-  .chart-wrapper {
-    transform: scale(0.70);
-  }
-  .chart-container {
-    width: 336px; /* 480px * 0.70 */
-    height: 266px; /* 380px * 0.70 */
-  }
-}
-
-@media only screen and (max-width: 425px) {
-  .chart-wrapper {
-    transform: scale(0.65);
-  }
-  .chart-container {
-    width: 312px; /* 480px * 0.65 */
-    height: 247px; /* 380px * 0.65 */
+  
+  .drip-calculator-container .mf-dripChart {
+    width: 100%;
+    height: 100%;
   }
 }
 
 @media only screen and (max-width: 400px) {
-  .chart-wrapper {
-    transform: scale(0.60);
+  .drip-calculator-container h2 {
+    font-size: 1.25rem;
   }
+  
+  .drip-calculator-container label {
+    font-size: 12px;
+  }
+  
+  .drip-calculator-container input,
+  .drip-calculator-container select {
+    font-size: 13px;
+  }
+  
+  .drip-calculator-container .mf-dripResults {
+    font-size: 13px;
+  }
+  
   .chart-container {
-    width: 288px; /* 480px * 0.60 */
-    height: 228px; /* 380px * 0.60 */
-  }
-}
-
-@media only screen and (max-width: 375px) {
-  .chart-wrapper {
-    transform: scale(0.55);
-  }
-  .chart-container {
-    width: 264px; /* 480px * 0.55 */
-    height: 209px; /* 380px * 0.55 */
+    max-width: 350px;
   }
 }
 
 @media only screen and (max-width: 350px) {
-  .chart-wrapper {
-    transform: scale(0.50);
+  .drip-calculator-container h2 {
+    font-size: 1.1rem;
   }
+  
+  .drip-calculator-container label {
+    font-size: 11px;
+  }
+  
+  .drip-calculator-container input,
+  .drip-calculator-container select {
+    font-size: 12px;
+  }
+  
+  .drip-calculator-container .mf-dripResults {
+    font-size: 12px;
+  }
+  
   .chart-container {
-    width: 240px; /* 480px * 0.50 */
-    height: 190px; /* 380px * 0.50 */
-  }
-}
-
-@media only screen and (max-width: 325px) {
-  .chart-wrapper {
-    transform: scale(0.45);
-  }
-  .chart-container {
-    width: 216px; /* 480px * 0.45 */
-    height: 171px; /* 380px * 0.45 */
+    max-width: 300px;
   }
 }
 
 
 /* Results rows */
-#dripResults {
+.drip-calculator-container .mf-dripResults {
   margin-top: 1.5rem;
   line-height: 1.5;
   font-family: inherit;
 }
-#dripResults .result-row {  
+.drip-calculator-container .mf-dripResults .result-row {  
   display: block;
   padding: 0.25rem 0;
-  border-bottom: 1px solid #EEE;
+  border-bottom: 1px solid var(--border-light);
 }
 .result-row .result-label {
     margin-right: 0.5em;
@@ -201,13 +219,13 @@ body {
 }
 
 /* Chart canvas */
-#dripChart {
+.drip-calculator-container .mf-dripChart {
   width: 100%;
   height: 100%;             /* cap its height */
   margin-top: 1.5rem;
   margin-bottom: -1.5rem;
   display: block;
-  border: 1px solid var(--e-global-color-fbbe184, #E5E5E5);
+  border: 1px solid var(--e-global-color-secondary);
   border-radius: 4px;
 }
 
@@ -240,9 +258,9 @@ body {
 }
 
 
-@container drip-table-wrapper (max-width: 480px) {
+@container drip-table-wrapper (max-width: 460px) {
   .drip-detail-table {
-    justify-self: start;   /* align the table left when ≤480px to fit huge numbers if needed */
+    justify-self: start;   /* align the table left when ≤460px to fit huge numbers if needed */
   }
 }
 
@@ -277,7 +295,7 @@ body {
 /* 1. Override and Constrain Width */
 body .drip-calculator-container {
     width: 100%;
-    max-width: 565px;
+    max-width: 500px;
     margin: 0 auto;
     box-sizing: border-box; 
 }
@@ -298,11 +316,11 @@ body .drip-calculator-container {
     padding: var(--space-xs) var(--space-s);
     margin-bottom: var(--space-s);
     box-sizing: border-box;
-    border: none; /* Removed black border */
+    border: none;
     border-radius: 4px;
     font-family: var(--e-global-typography-text-font-family, Montserrat);
     font-size: var(--e-global-typography-text-font-size, 16px);
-    color: #000000;
+    color: var(--e-global-color-secondary);
 }
 
 /* 3. Button Padding & Margins */
