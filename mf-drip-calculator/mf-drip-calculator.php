@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Mortgage Investment Returns Calculator
  * Description:       A calculator for DRIP investment returns. Use the shortcode [mf_drip_calculator] to display.
- * Version:           1.9.6
+ * Version:           1.9.8
  * Author:            Ryan
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt

@@ -374,8 +374,15 @@ body .drip-calculator-container {
     transition: all 0.2s ease-in-out;
 }
 
-.drip-calculator-container .mf-calculate-drip, .drip-calculator-container .mf-toggle-view, .btn-green {
-    margin-bottom: var(--space-m);
+.drip-calculator-container .mf-calculate-drip, .btn-green {
+    margin-bottom: var(--space-l);
+    background-color: var(--e-global-color-primary, #285026);
+    color: var(--e-global-color-163165d, white);
+    transition: all 0.2s ease-in-out;
+}
+
+.drip-calculator-container .mf-toggle-view {
+    margin-bottom: 0.75rem;
     background-color: var(--e-global-color-primary, #285026);
     color: var(--e-global-color-163165d, white);
     transition: all 0.2s ease-in-out;
