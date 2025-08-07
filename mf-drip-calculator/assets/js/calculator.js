@@ -10,18 +10,18 @@ function initializeDripCalculator(containerId, imageUrl) {
     let dripChart, dripData;
 
     // Element selectors scoped to the container
-    const initialInvestmentEl = container.querySelector('.mf-initialInvestment');
-    const annualRateEl = container.querySelector('.mf-annualRate');
+    const initialInvestmentEl = container.querySelector('.mf-initial-investment');
+    const annualRateEl = container.querySelector('.mf-annual-rate');
     const yearsEl = container.querySelector('.mf-years');
-    const contributionAmountEl = container.querySelector('.mf-contributionAmount');
-    const contributionFrequencyEl = container.querySelector('.mf-contributionFrequency');
-    const calculateButton = container.querySelector('.mf-calculateDrip');
-    const dripResultsEl = container.querySelector('.mf-dripResults');
-    const canvas = container.querySelector('.mf-dripChart');
-    const toggleButton = container.querySelector('.mf-toggleView');
-    const dripTableContainerEl = container.querySelector('.mf-dripTableContainer');
-    const downloadCsvButton = container.querySelector('.mf-downloadCsv');
-    const downloadChartButton = container.querySelector('.mf-downloadChart');
+    const contributionAmountEl = container.querySelector('.mf-contribution-amount');
+    const contributionFrequencyEl = container.querySelector('.mf-contribution-frequency');
+    const calculateButton = container.querySelector('.mf-calculate-drip');
+    const dripResultsEl = container.querySelector('.mf-drip-results');
+    const canvas = container.querySelector('.mf-drip-chart');
+    const toggleButton = container.querySelector('.mf-toggle-view');
+    const dripTableContainerEl = container.querySelector('.mf-drip-table-container');
+    const downloadCsvButton = container.querySelector('.mf-download-csv');
+    const downloadChartButton = container.querySelector('.mf-download-chart');
     const chartWrapper = container.querySelector('.chart-wrapper');
 
     const tooltipDescriptions = {
@@ -69,7 +69,7 @@ function initializeDripCalculator(containerId, imageUrl) {
             ctx.fillStyle = 'rgba(0,0,0,0.5)';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'bottom';
-            ctx.fillText('© Morrison Financial', chartArea.left - 83, chartArea.bottom - -76);
+            ctx.fillText('© Morrison Financial', chartArea.left - 86, chartArea.bottom - -76);
             ctx.restore();
         }
     };
@@ -191,36 +191,32 @@ function initializeDripCalculator(containerId, imageUrl) {
 
         const totalInvested = P + contribTotal;
         dripResultsEl.innerHTML = `
-            <div class="result-row">
-                <span class="result-label">Annualized Return (No DRIP):</span>
-                <strong class="result-value">${(r * 100).toFixed(2)}%</strong>
-                <span class="tooltip-placeholder"></span>
-            </div>
-            <div class="result-row">
-                <span class="result-label">Annualized Return (With DRIP):</span>
-                <strong class="result-value">${(annualizedDripReturn * 100).toFixed(2)}%</strong>
-                <span class="tooltip-placeholder"></span>
-            </div>
-            <div class="result-row">
-                <span class="result-label">Total Value (No DRIP):</span>
-                <strong class="result-value">$${fmtRounded(totalInvested + finalNonDrip)}</strong>
-                <span class="tooltip-placeholder"></span>
-            </div>
-            <div class="result-row">
-                <span class="result-label">Total Value (With DRIP):</span>
-                <strong class="result-value">$${fmtRounded(principalDrip)}</strong>
-                <span class="tooltip-placeholder"></span>
-            </div>
-            <div class="result-row">
-                <span class="result-label">Percentage Growth (No DRIP):</span>
-                <strong class="result-value">${((finalNonDrip / totalInvested) * 100).toFixed(2)}%</strong>
-                <span class="tooltip-placeholder"></span>
-            </div>
-            <div class="result-row">
-                <span class="result-label">Percentage Growth (With DRIP):</span>
-                <strong class="result-value">${(((principalDrip / totalInvested) - 1) * 100).toFixed(2)}%</strong>
-                <span class="tooltip-placeholder"></span>
-            </div>
+            <table class="results-summary-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>No DRIP</th>
+                        <th>With DRIP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="row-label">Annualized Return</td>
+                        <td class="result-value">${(r * 100).toFixed(2)}%</td>
+                        <td class="result-value">${(annualizedDripReturn * 100).toFixed(2)}%</td>
+                    </tr>
+                    <tr>
+                        <td class="row-label">Total Value</td>
+                        <td class="result-value">$${fmtRounded(totalInvested + finalNonDrip)}</td>
+                        <td class="result-value">$${fmtRounded(principalDrip)}</td>
+                    </tr>
+                    <tr>
+                        <td class="row-label">Total Percentage Growth</td>
+                        <td class="result-value">${((finalNonDrip / totalInvested) * 100).toFixed(2)}%</td>
+                        <td class="result-value">${(((principalDrip / totalInvested) - 1) * 100).toFixed(2)}%</td>
+                    </tr>
+                </tbody>
+            </table>
         `;
 
         const monthlyRows = labels.map((m, i) => {
@@ -250,7 +246,7 @@ function initializeDripCalculator(containerId, imageUrl) {
 
         dripTableContainerEl.innerHTML = showYear ? yearlyTableHtml : monthlyTableHtml;
 
-        container.querySelectorAll('.mf-dripResults .result-row .tooltip-placeholder').forEach(placeholder => {
+        container.querySelectorAll('.mf-drip-results .result-row .tooltip-placeholder').forEach(placeholder => {
             const existingTooltip = placeholder.querySelector('.tooltip-container');
             if (existingTooltip) existingTooltip.remove();
 
@@ -262,7 +258,7 @@ function initializeDripCalculator(containerId, imageUrl) {
             const bubble = document.createElement('span');
             bubble.className = 'tooltip-bubble';
             
-            const labelEl = placeholder.parentElement.querySelector('.result-label');
+            const labelEl = placeholder.parentElement.querySelector('.light-text');
             const label = labelEl ? labelEl.textContent.trim().replace(/:$/, '') : '';
             const descriptionKey = Object.keys(tooltipDescriptions).find(key => key.includes(label));
             
@@ -303,7 +299,7 @@ function initializeDripCalculator(containerId, imageUrl) {
             
             canvas.width = chartWidth;
             canvas.height = chartHeight;
-            Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+            Chart.defaults.font.family = 'Montserrat, sans-serif';
             Chart.defaults.color = getComputedStyle(document.body).color;
             Chart.defaults.devicePixelRatio = 2;
             const ctx = canvas.getContext('2d');

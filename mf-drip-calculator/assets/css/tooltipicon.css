@@ -26,7 +26,7 @@
   /* Tooltip bubble styling */
   .tooltip-bubble {
     position: fixed;
-    max-width: 100px;
+    max-width: 150px;
     padding: 0.5rem;
     background: #252525;
     color: #eee;

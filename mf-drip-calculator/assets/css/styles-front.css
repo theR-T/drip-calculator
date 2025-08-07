@@ -25,8 +25,7 @@ body {
 /* DRIP Calculator Container */
 .drip-calculator-container {
   margin: 2rem auto;
-  padding: 0;
-  border: 1px solid var(--e-global-color-secondary);      /* use dark grey for borders */
+  padding: 0;     /* use dark grey for borders */
   font-family: var(--e-global-typography-primary-font-family, Montserrat), inherit;           /* inherit the site's body font */
   color: var(--e-global-color-secondary);                 /* use dark grey for all text */
 }
@@ -53,11 +52,16 @@ body {
   width: 100%;
   padding: 0.5rem;
   font-size: var(--e-global-typography-text-font-size, 1rem);
-  border: 1px solid var(--e-global-color-secondary);     /* add dark grey border */
-  border-radius: 4px;
+  border: 1px solid #C0C0C0 !important;     /* add dark grey border */
+  border-radius: 0 !important;
   box-sizing: border-box;
   font-family: var(--e-global-typography-text-font-family, Montserrat);
   color: var(--e-global-color-secondary);
+}
+.drip-calculator-container input:focus {
+  border-radius: 0 !important;
+  outline: none !important;
+  border: 1px solid #FFE1E1 !important;
 }
 
 .chart-container {
@@ -91,7 +95,6 @@ body {
   .drip-calculator-container {
     margin: 1rem auto;
     padding: 0;
-    border: 1px solid var(--e-global-color-secondary);
     font-family: var(--e-global-typography-primary-font-family, Montserrat), inherit;
     color: var(--e-global-color-secondary);
   }
@@ -99,22 +102,6 @@ body {
 
 /* Responsive sizing for smaller calculator containers */
 @media only screen and (max-width: 500px) {
-  .drip-calculator-container h2 {
-    font-size: 1.5rem;
-  }
-  
-  .drip-calculator-container label {
-    font-size: 13px;
-  }
-  
-  .drip-calculator-container input,
-  .drip-calculator-container select {
-    font-size: 14px;
-  }
-  
-  .drip-calculator-container .mf-dripResults {
-    font-size: 14px;
-  }
   
   .chart-container {
     width: 100%;
@@ -129,29 +116,13 @@ body {
     transform: none;
   }
   
-  .drip-calculator-container .mf-dripChart {
+  .drip-calculator-container .mf-drip-chart {
     width: 100%;
     height: 100%;
   }
 }
 
 @media only screen and (max-width: 400px) {
-  .drip-calculator-container h2 {
-    font-size: 1.25rem;
-  }
-  
-  .drip-calculator-container label {
-    font-size: 12px;
-  }
-  
-  .drip-calculator-container input,
-  .drip-calculator-container select {
-    font-size: 13px;
-  }
-  
-  .drip-calculator-container .mf-dripResults {
-    font-size: 13px;
-  }
   
   .chart-container {
     max-width: 350px;
@@ -159,22 +130,6 @@ body {
 }
 
 @media only screen and (max-width: 350px) {
-  .drip-calculator-container h2 {
-    font-size: 1.1rem;
-  }
-  
-  .drip-calculator-container label {
-    font-size: 11px;
-  }
-  
-  .drip-calculator-container input,
-  .drip-calculator-container select {
-    font-size: 12px;
-  }
-  
-  .drip-calculator-container .mf-dripResults {
-    font-size: 12px;
-  }
   
   .chart-container {
     max-width: 300px;
@@ -182,22 +137,108 @@ body {
 }
 
 
-/* Results rows */
-.drip-calculator-container .mf-dripResults {
-  margin-top: 1.5rem;
+/* Results summary table */
+.drip-calculator-container .mf-drip-results {
   line-height: 1.5;
-  font-family: inherit;
+  font-family: Montserrat, sans-serif;
+  border: none !important;
+  border-top: none !important;
 }
-.drip-calculator-container .mf-dripResults .result-row {  
-  display: block;
-  padding: 0.25rem 0;
-  border-bottom: 1px solid var(--border-light);
+
+.results-summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Montserrat, sans-serif;
+  margin: var(--space-s) 0;
+  border: none !important;
 }
-.result-row .result-label {
+
+.results-summary-table,
+.results-summary-table *,
+.results-summary-table thead,
+.results-summary-table tbody,
+.results-summary-table tr,
+.results-summary-table th,
+.results-summary-table td {
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  outline: none !important;
+}
+
+.results-summary-table th {
+  padding: var(--space-xs) var(--space-s);
+  text-align: center;
+  font-weight: normal;
+  font-size: var(--e-global-typography-accent-font-size, 14px);
+  border: none;
+  color: var(--e-global-color-secondary, #333);
+}
+
+.results-summary-table th:nth-child(3) {
+  font-weight: 600; /* Only With DRIP header is bold */
+}
+
+.results-summary-table th:first-child {
+  background-color: transparent;
+  border: none;
+}
+
+.results-summary-table th:nth-child(2) {
+  background-color: hsl(217, 46%, 88%); /* #A8BDD6 made 20% brighter */
+}
+
+.results-summary-table th:nth-child(3) {
+  background-color: hsl(158, 33%, 82%); /* #9CC7B8 made 20% brighter */
+}
+
+.results-summary-table td {
+  padding: var(--space-xs) var(--space-s);
+  text-align: center;
+  border: none;
+  font-family: Montserrat, sans-serif;
+}
+
+.results-summary-table .row-label {
+  background-color: var(--e-global-color-fbbe184, #f5f5f5);
+  font-weight: normal;
+  font-size: var(--e-global-typography-accent-font-size, 14px);
+  color: var(--e-global-color-secondary);
+  text-align: left;
+  padding-left: var(--space-s);
+}
+
+.results-summary-table .result-value {
+  font-weight: normal;
+  font-family: Montserrat, sans-serif;
+}
+
+.results-summary-table td:nth-child(2) {
+  background-color: hsl(217, 46%, 95%); /* #A8BDD6 made 20% brighter */
+}
+
+.results-summary-table td:nth-child(3) {
+  background-color: hsl(158, 33%, 89%); /* #9CC7B8 made 20% brighter */
+  font-weight: 600; /* Only With DRIP data is bold */
+}
+
+.results-summary-table tbody tr:first-child td {
+  border: none;
+}
+
+/* Legacy result-row styles for backwards compatibility */
+.result-row .light-text {
     margin-right: 0.5em;
+    font-weight: var(--e-global-typography-accent-font-weight, 500);
+    font-family: var(--e-global-typography-accent-font-family, Montserrat);
+    font-size: var(--e-global-typography-accent-font-size, 14px);
+    color: var(--e-global-color-secondary);
 }
 .result-row .result-value {
     font-weight: 600;
+    font-family: Montserrat, sans-serif;
 }
 .result-row .tooltip-placeholder {
     display: inline-flex;
@@ -219,14 +260,12 @@ body {
 }
 
 /* Chart canvas */
-.drip-calculator-container .mf-dripChart {
+.drip-calculator-container .mf-drip-chart {
   width: 100%;
   height: 100%;             /* cap its height */
   margin-top: 1.5rem;
   margin-bottom: -1.5rem;
   display: block;
-  border: 1px solid var(--e-global-color-secondary);
-  border-radius: 4px;
 }
 
 .drip-table-wrapper {
@@ -245,10 +284,10 @@ body {
 }
 
 /* Remove all borders from table container and its children */
-.mf-dripTableContainer,
-.mf-dripTableContainer table,
-.mf-dripTableContainer th,
-.mf-dripTableContainer td {
+.mf-drip-table-container,
+.mf-drip-table-container table,
+.mf-drip-table-container th,
+.mf-drip-table-container td {
   border: none !important;
 }
 
@@ -277,13 +316,15 @@ body {
   width: 0;
   text-align: center;
   vertical-align: middle;
-  line-height: 1
+  line-height: 1;
+  font-family: Montserrat, sans-serif;
 }
 .drip-detail-table th {
     padding: 4px 5px; /* Reduced vertical, 5px horizontal */
     text-align: center;
     vertical-align: middle;
     font-weight: 600;
+    font-family: Montserrat, sans-serif;
 }
 .drip-detail-table th,
 .drip-detail-table td {
@@ -317,7 +358,6 @@ body .drip-calculator-container {
     margin-bottom: var(--space-s);
     box-sizing: border-box;
     border: none;
-    border-radius: 4px;
     font-family: var(--e-global-typography-text-font-family, Montserrat);
     font-size: var(--e-global-typography-text-font-size, 16px);
     color: var(--e-global-color-secondary);
@@ -328,26 +368,27 @@ body .drip-calculator-container {
     border: 1px solid transparent;
     cursor: pointer;
     font-weight: 600;
+    font-family: Montserrat, sans-serif;
     /* Applying the horizontal padding rule */
     padding: var(--space-xs) var(--space-m);
     transition: all 0.2s ease-in-out;
 }
 
-.drip-calculator-container .mf-calculateDrip, .drip-calculator-container .mf-toggleView, .btn-green {
+.drip-calculator-container .mf-calculate-drip, .drip-calculator-container .mf-toggle-view, .btn-green {
     margin-bottom: var(--space-m);
     background-color: var(--e-global-color-primary, #285026);
     color: var(--e-global-color-163165d, white);
     transition: all 0.2s ease-in-out;
 }
 
-.drip-calculator-container .mf-calculateDrip {
+.drip-calculator-container .mf-calculate-drip {
   width: 100%;
 }
 
-.drip-calculator-container .mf-calculateDrip:hover,
-.drip-calculator-container .mf-calculateDrip:active,
-.drip-calculator-container .mf-toggleView:hover,
-.drip-calculator-container .mf-toggleView:active,
+.drip-calculator-container .mf-calculate-drip:hover,
+.drip-calculator-container .mf-calculate-drip:active,
+.drip-calculator-container .mf-toggle-view:hover,
+.drip-calculator-container .mf-toggle-view:active,
 .btn-green:hover,
 .btn-green:active {
     background-color: var(--e-global-color-163165d, white);
@@ -356,9 +397,8 @@ body .drip-calculator-container {
 }
 
 /* 4. Section & Group Spacing */
-.drip-calculator-container .mf-dripResults,
+.drip-calculator-container .mf-drip-results,
 .drip-calculator-container .chart-container,
-.drip-calculator-container .table-controls,
 .drip-calculator-container .drip-table-wrapper {
     margin-bottom: var(--space-m);
 }
@@ -367,10 +407,17 @@ body .drip-calculator-container {
     text-align: center;
 }
 
-.drip-calculator-container .dripActions {
+.drip-calculator-container .drip-actions {
     margin-top: var(--space-l);
     display: flex;
     justify-content: center;
     gap: var(--space-s);
     flex-wrap: wrap;
+}
+
+/* Remove margin bottom from first button when buttons stack */
+@media only screen and (max-width: 500px) {
+    .drip-calculator-container .drip-actions .btn-green:first-child {
+        margin-bottom: 0;
+    }
 }
