@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Mortgage Investment Returns Calculator
  * Description:       A calculator for DRIP investment returns. Use the shortcode [mf_drip_calculator] to display.
- * Version:           1.9.8
+ * Version:           2.0.0
  * Author:            Ryan
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
@@ -14,6 +14,10 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+/**
+ * Enqueue assets only on pages where the shortcode is present.
+ * Uses file modification times for cache-busting.
+ */
 function mf_drip_calculator_enqueue_scripts() {
     global $post;
     if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'mf_drip_calculator' ) ) {
@@ -29,6 +33,9 @@ function mf_drip_calculator_enqueue_scripts() {
 }
 add_action( 'wp_enqueue_scripts', 'mf_drip_calculator_enqueue_scripts' );
 
+/**
+ * Shortcode callback that renders a calculator instance and bootstraps its JS.
+ */
 function mf_drip_calculator_shortcode() {
     static $instance = 0;
     $instance++;
@@ -36,7 +43,7 @@ function mf_drip_calculator_shortcode() {
 
     $image_url = plugin_dir_url( __FILE__ ) . 'assets/images/MorrisonM.png';
 
-    // Add an inline script to initialize this specific calculator instance.
+    // Initialize this specific calculator instance after DOM is ready.
     $init_script = sprintf(
         "document.addEventListener('DOMContentLoaded', function() { if (typeof initializeDripCalculator === 'function') { initializeDripCalculator('%s', '%s'); } });",
         esc_js( $calculator_id ),
@@ -87,11 +94,11 @@ function mf_drip_calculator_shortcode() {
 add_shortcode( 'mf_drip_calculator', 'mf_drip_calculator_shortcode' );
 
 function mf_drip_calculator_activate() {
-    // Activation code here.
+    // Intentionally left blank: reserved for future activation tasks.
 }
 register_activation_hook( __FILE__, 'mf_drip_calculator_activate' );
 
 function mf_drip_calculator_deactivate() {
-    // Deactivation code here.
+    // Intentionally left blank: reserved for future deactivation tasks.
 }
 register_deactivation_hook( __FILE__, 'mf_drip_calculator_deactivate' ); 

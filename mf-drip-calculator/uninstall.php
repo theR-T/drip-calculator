@@ -1,24 +1,19 @@
 <?php
 
-// if uninstall.php is not called by WordPress, die
+// Abort if not called by WordPress
 if (!defined('WP_UNINSTALL_PLUGIN')) {
     die;
 }
 
-// Clean up plugin data when uninstalled
+/**
+ * Cleanup hook executed on plugin uninstall.
+ * Currently a no-op; scaffold left for future data storage.
+ */
 function mf_drip_calculator_uninstall_cleanup() {
-    // Remove any plugin options (none currently exist)
+    // Example placeholders (uncomment when options/transients/events are introduced):
     // delete_option('mf_drip_calculator_options');
-    
-    // Remove any transients (none currently exist)
     // delete_transient('mf_drip_calculator_cache');
-    
-    // Clear any scheduled events (none currently exist)
     // wp_clear_scheduled_hook('mf_drip_calculator_scheduled_event');
-    
-    // Note: This plugin currently doesn't store any persistent data
-    // but this structure is ready for future enhancements
 }
 
-// Execute cleanup
-mf_drip_calculator_uninstall_cleanup(); 
+mf_drip_calculator_uninstall_cleanup();

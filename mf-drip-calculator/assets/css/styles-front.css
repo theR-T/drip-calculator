@@ -2,7 +2,7 @@ body {
   font-family: var(--e-global-typography-primary-font-family, Montserrat);
 }
 
-/* Calculator Layout & Spacing Best Practices */
+/* Calculator theme tokens and layout primitives */
 :root {
     --space-xs: 0.5rem;  /* 8px */
     --space-s: 1rem;     /* 16px */
@@ -22,7 +22,7 @@ body {
 --border-light: var(--e-global-color-secondary);
 }
 
-/* DRIP Calculator Container */
+/* Root container */
 .drip-calculator-container {
   margin: 2rem auto;
   padding: 0;     /* use dark grey for borders */
@@ -30,7 +30,7 @@ body {
   color: var(--e-global-color-secondary);                 /* use dark grey for all text */
 }
 
-/* Header */
+/* Heading */
 .drip-calculator-container h2 {
   margin: 0 0 1rem;
   font-size: var(--e-global-typography-secondary-font-size, 1.75rem);
@@ -252,38 +252,35 @@ body {
 }
 
 .drip-detail-table tbody tr:nth-child(odd) {
-  background-color: var(--e-global-color-fbbe184);   /* every other line grey */
+  background-color: var(--e-global-color-fbbe184);
 }
 
 .drip-detail-table tbody tr:nth-child(even) {
-  background-color: var(--e-global-color-accent);   /* the "light green" you wanted */
+  background-color: var(--e-global-color-accent);
 }
 
 /* Chart canvas */
 .drip-calculator-container .mf-drip-chart {
   width: 100%;
-  height: 100%;             /* cap its height */
+  height: 100%;
   margin-top: 1.5rem;
   margin-bottom: -1.5rem;
   display: block;
 }
 
 .drip-table-wrapper {
-  display: grid;                   /* so that justify-items / justify-self actually work */
-  container-type: inline-size;     /* turn it into a container you can query */
+  display: grid;
+  container-type: inline-size;
   container-name: table-wrapper;
-  justify-items: center;           /* default: center the table */
+  justify-items: center;
   overflow-x: auto;
-  /* enable smooth touch-scroll on iOS */
   -webkit-overflow-scrolling: touch;
   
-  /* hide scrollbar in Firefox */
   scrollbar-width: none;
-  /* hide scrollbar in IE10+ */
   -ms-overflow-style: none;
 }
 
-/* Remove all borders from table container and its children */
+/* Remove borders from table container and its children */
 .mf-drip-table-container,
 .mf-drip-table-container table,
 .mf-drip-table-container th,
@@ -298,12 +295,10 @@ body {
 
 
 @container drip-table-wrapper (max-width: 460px) {
-  .drip-detail-table {
-    justify-self: start;   /* align the table left when ≤460px to fit huge numbers if needed */
-  }
+  .drip-detail-table { justify-self: start; }
 }
 
-/* target the first column ("Month") and give it a narrow width */
+/* First column: abbreviated width */
 .drip-detail-table th:first-child,
 .drip-detail-table td:first-child {
   width: 0;

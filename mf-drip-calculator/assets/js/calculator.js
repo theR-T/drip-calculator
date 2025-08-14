@@ -1,3 +1,8 @@
+/**
+ * Initialize one calculator instance inside a container.
+ * @param {string} containerId - DOM id of the calculator wrapper element
+ * @param {string} imageUrl - Optional watermark image for the chart background
+ */
 function initializeDripCalculator(containerId, imageUrl) {
     const container = document.getElementById(containerId);
     if (!container) {
@@ -9,7 +14,7 @@ function initializeDripCalculator(containerId, imageUrl) {
     let yearlyTableHtml = "";
     let dripChart, dripData;
 
-    // Element selectors scoped to the container
+    // Scoped element references
     const initialInvestmentEl = container.querySelector('.mf-initial-investment');
     const annualRateEl = container.querySelector('.mf-annual-rate');
     const yearsEl = container.querySelector('.mf-years');
@@ -24,6 +29,7 @@ function initializeDripCalculator(containerId, imageUrl) {
     const downloadChartButton = container.querySelector('.mf-download-chart');
     const chartWrapper = container.querySelector('.chart-wrapper');
 
+    // Tooltip copy used for inline help in the results area
     const tooltipDescriptions = {
         "Annualized Return (No DRIP):": "The annual distribution yield you selected. This represents the regular dividend payments if not reinvested.",
         "Annualized Return (With DRIP):": "Average annual return when dividends are reinvested. Calculated as: (Sum of all DRIP returns / Years) / Average Principal. This shows the compound effect of reinvesting dividends.",
@@ -42,6 +48,7 @@ function initializeDripCalculator(containerId, imageUrl) {
         bgImage.src = imageUrl;
     }
 
+    // Background image (watermark) plugin for Chart.js
     const bgPlugin = {
         id: 'bgImage',
         beforeDraw: chart => {
@@ -60,6 +67,7 @@ function initializeDripCalculator(containerId, imageUrl) {
         }
     };
 
+    // Footer watermark text plugin for Chart.js
     const watermarkPlugin = {
         id: 'watermark',
         afterDraw: chart => {
@@ -78,6 +86,7 @@ function initializeDripCalculator(containerId, imageUrl) {
 
     const fmtRounded = n => Math.round(n).toLocaleString();
 
+    // Main calculation + render pipeline
     function calculateAndDisplay() {
         let initialInvestment = initialInvestmentEl.value.trim();
         initialInvestment = initialInvestment === '' ? 0 : parseFloat(initialInvestment.replace(/,/g, ''));
@@ -165,6 +174,7 @@ function initializeDripCalculator(containerId, imageUrl) {
 
         cashflows[cashflows.length - 1] += principalDrip;
 
+        // Simple Newton–Raphson IRR solver on monthly cashflows
         function irr(cfs, guess = 0.01) {
             let rate = guess;
             for (let iter = 0; iter < 50; iter++) {
@@ -293,7 +303,7 @@ function initializeDripCalculator(containerId, imageUrl) {
         
         // Initialize chart if it doesn't exist
         if (!dripChart) {
-            // Get chart dimensions from CSS variables
+            // Pull dimensions/colors from CSS custom properties for theming
             const chartWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--chart-width')) || 480;
             const chartHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--chart-height')) || 380;
             
@@ -303,7 +313,7 @@ function initializeDripCalculator(containerId, imageUrl) {
             Chart.defaults.color = getComputedStyle(document.body).color;
             Chart.defaults.devicePixelRatio = 2;
             const ctx = canvas.getContext('2d');
-            // Get chart colors from CSS variables
+            // Colors (with fallbacks)
             const dripColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-drip-color').trim() || '#006644';
             const nonDripColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-non-drip-color').trim() || '#004C84';
             
@@ -348,7 +358,7 @@ function initializeDripCalculator(containerId, imageUrl) {
         });
     }
 
-    // Shared function to generate data export content
+    // Build export payload (header + per-month rows)
     function generateExportData() {
         if (!dripData) return null;
         const { labels, regReturnArr, dripReturnArr, totalNonDripReturnArr, totalDripReturnArr, contribThisMonthArr, initialPrincipal } = dripData;

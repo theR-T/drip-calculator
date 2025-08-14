@@ -1,4 +1,4 @@
-/* TooltipIconStyles.css */
+/* Tooltip icon and bubble styles */
 .tooltip-container {
     display: inline-block;
     position: relative; /* only for stacking context */
@@ -50,7 +50,7 @@
     pointer-events: auto;
   }
   
-  /* <-- this is your "speech bubble" arrow */
+  /* Speech bubble arrow */
   .tooltip-bubble::after {
     content: '';
     position: absolute;
